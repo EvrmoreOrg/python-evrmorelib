@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2017 The python-bitcoinlib developers
+# Copyright (C) The python-bitcoinlib developers
 # Copyright (C) 2018-2020 The python-ravencoinlib developers
 #
 # This file is part of python-ravencoinlib.
@@ -10,28 +10,22 @@
 # propagated, or distributed except according to the terms contained in the
 # LICENSE file.
 
-from __future__ import absolute_import, division, print_function
 
 import binascii
 import struct
-import sys
 import time
 
-from .script import CScript, CScriptWitness, CScriptOp, OP_RETURN
+from . import script
+from .script import CScript, CScriptWitness, OP_RETURN
 
 from .serialize import *
-
-if sys.version > '3':
-    _bytes = bytes
-else:
-    _bytes = lambda x: bytes(bytearray(x))
 
 # Core definitions
 COIN = 100000000
 MAX_BLOCK_SIZE = 1000000*2
 MAX_BLOCK_WEIGHT = 4000000
 MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE/50
-WITNESS_COINBASE_SCRIPTPUBKEY_MAGIC = _bytes([OP_RETURN, 0x24, 0xaa, 0x21, 0xa9, 0xed])
+WITNESS_COINBASE_SCRIPTPUBKEY_MAGIC = bytes([OP_RETURN, 0x24, 0xaa, 0x21, 0xa9, 0xed])
 
 def MoneyRange(nValue, params=None):
     global coreparams
@@ -40,29 +34,13 @@ def MoneyRange(nValue, params=None):
 
     return 0 <= nValue <= params.MAX_MONEY
 
-def _py2_x(h):
-    """Convert a hex string to bytes"""
-    return binascii.unhexlify(h)
-
 def x(h):
     """Convert a hex string to bytes"""
     return binascii.unhexlify(h.encode('utf8'))
 
-def _py2_b2x(b):
-    """Convert bytes to a hex string"""
-    return binascii.hexlify(b)
-
 def b2x(b):
     """Convert bytes to a hex string"""
     return binascii.hexlify(b).decode('utf8')
-
-def _py2_lx(h):
-    """Convert a little-endian hex string to bytes
-
-    Lets you write uint256's and uint160's the way the Satoshi codebase shows
-    them.
-    """
-    return binascii.unhexlify(h)[::-1]
 
 def lx(h):
     """Convert a little-endian hex string to bytes
@@ -72,14 +50,6 @@ def lx(h):
     """
     return binascii.unhexlify(h.encode('utf8'))[::-1]
 
-def _py2_b2lx(b):
-    """Convert bytes to a little-endian hex string
-
-    Lets you show uint256's and uint160's the way the Satoshi codebase shows
-    them.
-    """
-    return binascii.hexlify(b[::-1])
-
 def b2lx(b):
     """Convert bytes to a little-endian hex string
 
@@ -87,18 +57,6 @@ def b2lx(b):
     them.
     """
     return binascii.hexlify(b[::-1]).decode('utf8')
-
-if not (sys.version > '3'):
-    x = _py2_x
-    b2x = _py2_b2x
-    lx = _py2_lx
-    b2lx = _py2_b2lx
-
-del _py2_x
-del _py2_b2x
-del _py2_lx
-del _py2_b2lx
-
 
 def str_money_value(value):
     """Convert an integer money value to a fixed point string"""
@@ -409,8 +367,8 @@ class CTransaction(ImmutableSerializable):
     def stream_deserialize(cls, f):
         """Deserialize transaction
 
-        This implementation corresponds to Ravencoin's SerializeTransaction() and
-        consensus behavior. Note that Ravencoin's DecodeHexTx() also has the
+        This implementation corresponds to Bitcoin's SerializeTransaction() and
+        consensus behavior. Note that Bitcoin's DecodeHexTx() also has the
         option to attempt deserializing as a non-witness transaction first,
         falling back to the consensus behavior if it fails. The difference lies
         in transactions which have zero inputs: they are invalid but may be
@@ -477,15 +435,35 @@ class CTransaction(ImmutableSerializable):
             return cls(tx.vin, tx.vout, tx.nLockTime, tx.nVersion, tx.wit)
 
     def GetTxid(self):
-        """Get the transaction ID.  This differs from the transactions hash as
-            given by GetHash.  GetTxid excludes witness data, while GetHash
-            includes it. """
+        """Get the transaction ID.
+
+        This differs from the transactions hash as given by GetHash. GetTxid
+        excludes witness data, while GetHash includes it.
+        """
         if self.wit != CTxWitness():
             txid = Hash(CTransaction(self.vin, self.vout, self.nLockTime,
                 self.nVersion).serialize())
         else:
             txid = Hash(self.serialize())
         return txid
+
+    def calc_weight(self):
+        """Calculate the transaction weight, as defined by BIP141.
+
+        The transaction must contain at least one input and one output.
+        """
+        # Not clear how calc_weight() should be defined for the zero vin/vout
+        # cases, so punting on that decision for now.
+        assert len(self.vin) > 0
+        assert len(self.vout) > 0
+
+        # This special case isn't strictly necessary. But saves on serializing
+        # the transaction twice in the no-witness case.
+        if self.wit.is_null():
+            return len(self.serialize()) * 4
+        else:
+            stripped = CTransaction(self.vin, self.vout, self.nLockTime, self.nVersion)
+            return len(stripped.serialize()) * 3 + len(self.serialize())
 
 @__make_mutable
 class CMutableTransaction(CTransaction):
@@ -517,6 +495,7 @@ class CMutableTransaction(CTransaction):
         vout = [CMutableTxOut.from_txout(txout) for txout in tx.vout]
 
         return cls(vin, vout, tx.nLockTime, tx.nVersion, tx.wit)
+
 
 class CBlockHeader(ImmutableSerializable):
     """A block header"""
@@ -616,7 +595,7 @@ class CBlock(CBlockHeader):
         WARNING! If you're reading this because you're learning about crypto
         and/or designing a new system that will use merkle trees, keep in mind
         that the following merkle tree algorithm has a serious flaw related to
-        duplicate txids, resulting in a vulnerability. (CVE-2012-2459) Ravencoin
+        duplicate txids, resulting in a vulnerability. (CVE-2012-2459) Bitcoin
         has since worked around the flaw, but for new applications you should
         use something different; don't just copy-and-paste this code without
         understanding the problem first.
@@ -787,6 +766,10 @@ class CoreTestNetParams(CoreMainParams):
     nX16RV2ActivationTime = 1569931200
     nKAWPOWActivationTime = 1585159200
 
+class CoreSigNetParams(CoreMainParams):
+    NAME = 'signet'
+    GENESIS_BLOCK = CBlock.deserialize(x('0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a008f4d5fae77031e8ad222030101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
+
 class CoreRegTestParams(CoreTestNetParams):
     NAME = 'regtest'
     GENESIS_BLOCK = CBlock.deserialize(x('04000000000000000000000000000000000000000000000000000000000000000000000016355fae8b6a26f2fa708d39997654c44b501f308d802325359a7367a800ff28a621d95affff7f20010000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff570004ffff001d01044c4d5468652054696d65732030332f4a616e2f3230313820426974636f696e206973206e616d65206f66207468652067616d6520666f72206e65772067656e65726174696f6e206f66206669726d73ffffffff010088526a74000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
@@ -810,6 +793,8 @@ def _SelectCoreParams(name):
         coreparams = CoreTestNetParams()
     elif name == 'regtest':
         coreparams = CoreRegTestParams()
+    elif name == 'signet':
+        coreparams = CoreSigNetParams()
     else:
         raise ValueError('Unknown chain %r' % name)
 

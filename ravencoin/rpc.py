@@ -24,25 +24,14 @@ a different implementation can be used instead, at your own risk:
 thus better optimized but perhaps less stable.)
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-try:
-    import http.client as httplib
-except ImportError:
-    import httplib
+import http.client as httplib
 import base64
 import binascii
 import decimal
 import json
 import os
 import platform
-import re
-import sys
-
-try:
-    import urllib.parse as urlparse
-except ImportError:
-    import urlparse
+import urllib.parse as urlparse
 
 import ravencoin
 from ravencoin.core import COIN, x, lx, b2lx, CBlock, CBlockHeader, CTransaction, COutPoint, CTxOut
@@ -53,12 +42,35 @@ DEFAULT_USER_AGENT = "AuthServiceProxy/0.1"
 
 DEFAULT_HTTP_TIMEOUT = 30
 
-# (un)hexlify to/from unicode, needed for Python3
-unhexlify = binascii.unhexlify
-hexlify = binascii.hexlify
-if sys.version > '3':
-    unhexlify = lambda h: binascii.unhexlify(h.encode('utf8'))
-    hexlify = lambda b: binascii.hexlify(b).decode('utf8')
+def unhexlify_str(h):
+    """
+    Converts a string containing hexadecimal encoding into a bytes-object.
+
+    It works by encoding the given string h as ASCII, then interpreting each of
+    its two-character ASCII tuples as bytes:
+        - "00" to byte 0
+        - "ff" to byte 255
+        - "FF" also to byte 255
+
+    The string must only contain characters in the ranges 0-9, a-f and A-F.
+
+    If the string contains characters not in ASCII,
+        UnicodeEncodeError is raised.
+    If the string contains out-of-range ASCII characters,
+        binascii.Error is raised.
+    If number of encoded ASCII bytes is odd,
+        binascii.Error is raised.
+    """
+    return binascii.unhexlify(h.encode('ascii'))
+
+def hexlify_str(b):
+    """
+    Given an arbitrary bytes-like object, returns a string (that would encode
+    as ASCII) containing the hex-representation of the bytes-like object.
+
+    Always succeeds.
+    """
+    return binascii.hexlify(b).decode('ascii')
 
 
 def get_rvn_datadir(datadir=None):
@@ -109,36 +121,29 @@ class JSONRPCError(Exception):
 
         return self
 
-
 @JSONRPCError._register_subcls
 class ForbiddenBySafeModeError(JSONRPCError):
     RPC_ERROR_CODE = -2
-
 
 @JSONRPCError._register_subcls
 class InvalidAddressOrKeyError(JSONRPCError):
     RPC_ERROR_CODE = -5
 
-
 @JSONRPCError._register_subcls
 class InvalidParameterError(JSONRPCError):
     RPC_ERROR_CODE = -8
-
 
 @JSONRPCError._register_subcls
 class VerifyError(JSONRPCError):
     RPC_ERROR_CODE = -25
 
-
 @JSONRPCError._register_subcls
 class VerifyRejectedError(JSONRPCError):
     RPC_ERROR_CODE = -26
 
-
 @JSONRPCError._register_subcls
 class VerifyAlreadyInChainError(JSONRPCError):
     RPC_ERROR_CODE = -27
-
 
 @JSONRPCError._register_subcls
 class InWarmupError(JSONRPCError):
@@ -211,9 +216,7 @@ class BaseProxy(object):
                     authpair = "%s:%s" % (conf['rpcuser'], conf['rpcpassword'])
 
                 else:
-                    raise ValueError(
-                        'Cookie file unusable (%s) and rpcpassword not specified in the configuration file: %r' % (
-                            err, btc_conf_file))
+                    raise ValueError('Cookie file unusable (%s) and rpcpassword not specified in the configuration file: %r' % (err, btc_conf_file))
 
         else:
             url = urlparse.urlparse(service_url)
@@ -323,7 +326,6 @@ class RawProxy(BaseProxy):
     Python is concerned, you can call any method; ``JSONRPCError`` will be
     raised if the server does not recognize it.
     """
-
     def __init__(self,
                  service_url=None,
                  service_port=None,
@@ -412,10 +414,10 @@ class Proxy(BaseProxy):
          'changepos': Position of added change output, or -1,
         }
         """
-        hextx = hexlify(tx.serialize())
+        hextx = hexlify_str(tx.serialize())
         r = self._call('fundrawtransaction', hextx, include_watching)
 
-        r['tx'] = CTransaction.deserialize(unhexlify(r['hex']))
+        r['tx'] = CTransaction.deserialize(unhexlify_str(r['hex']))
         del r['hex']
 
         r['fee'] = int(r['fee'] * COIN)
@@ -424,7 +426,7 @@ class Proxy(BaseProxy):
 
     def generate(self, numblocks):
         """
-        DEPRECATED (will be removed in ravencoin-core v0.19)
+        DEPRECATED (will be removed in bitcoin-core v0.19)
         
         Mine blocks immediately (before the RPC call returns)
 
@@ -434,7 +436,7 @@ class Proxy(BaseProxy):
         """
         r = self._call('generate', numblocks)
         return (lx(blk_hash) for blk_hash in r)
-
+    
     def generatetoaddress(self, numblocks, addr):
         """Mine blocks immediately (before the RPC call returns) and
         allocate block reward to passed address. Replaces deprecated 
@@ -467,7 +469,7 @@ class Proxy(BaseProxy):
         (default=False)
         """
         r = self._call('getbalance', account, minconf, include_watchonly)
-        return int(r * COIN)
+        return int(r*COIN)
 
     def getbestblockhash(self):
         """Return hash of best (tip) block in longest block chain."""
@@ -486,24 +488,25 @@ class Proxy(BaseProxy):
             block_hash = b2lx(block_hash)
         except TypeError:
             raise TypeError('%s.getblockheader(): block_hash must be bytes; got %r instance' %
-                            (self.__class__.__name__, block_hash.__class__))
+                    (self.__class__.__name__, block_hash.__class__))
         try:
             r = self._call('getblockheader', block_hash, verbose)
         except InvalidAddressOrKeyError as ex:
             raise IndexError('%s.getblockheader(): %s (%d)' %
-                             (self.__class__.__name__, ex.error['message'], ex.error['code']))
+                    (self.__class__.__name__, ex.error['message'], ex.error['code']))
 
         if verbose:
             nextblockhash = None
             if 'nextblockhash' in r:
                 nextblockhash = lx(r['nextblockhash'])
-            return {'confirmations': r['confirmations'],
-                    'height': r['height'],
-                    'mediantime': r['mediantime'],
-                    'nextblockhash': nextblockhash,
-                    'chainwork': x(r['chainwork'])}
+            return {'confirmations':r['confirmations'],
+                    'height':r['height'],
+                    'mediantime':r['mediantime'],
+                    'nextblockhash':nextblockhash,
+                    'chainwork':x(r['chainwork'])}
         else:
-            return CBlockHeader.deserialize(unhexlify(r))
+            return CBlockHeader.deserialize(unhexlify_str(r))
+
 
     def getblock(self, block_hash):
         """Get block <block_hash>
@@ -514,16 +517,16 @@ class Proxy(BaseProxy):
             block_hash = b2lx(block_hash)
         except TypeError:
             raise TypeError('%s.getblock(): block_hash must be bytes; got %r instance' %
-                            (self.__class__.__name__, block_hash.__class__))
+                    (self.__class__.__name__, block_hash.__class__))
         try:
-            # With this change ( https://github.com/ravencoin/ravencoin/commit/96c850c20913b191cff9f66fedbb68812b1a41ea#diff-a0c8f511d90e83aa9b5857e819ced344 ),
-            # ravencoin core's rpc takes 0/1/2 instead of true/false as the 2nd argument which specifies verbosity, since v0.15.0.
+            # With this change ( https://github.com/bitcoin/bitcoin/commit/96c850c20913b191cff9f66fedbb68812b1a41ea#diff-a0c8f511d90e83aa9b5857e819ced344 ),
+            # bitcoin core's rpc takes 0/1/2 instead of true/false as the 2nd argument which specifies verbosity, since v0.15.0.
             # The change above is backward-compatible so far; the old "false" is taken as the new "0".
             r = self._call('getblock', block_hash, False)
         except InvalidAddressOrKeyError as ex:
             raise IndexError('%s.getblock(): %s (%d)' %
-                             (self.__class__.__name__, ex.error['message'], ex.error['code']))
-        return CBlock.deserialize(unhexlify(r))
+                    (self.__class__.__name__, ex.error['message'], ex.error['code']))
+        return CBlock.deserialize(unhexlify_str(r))
 
     def getblockcount(self):
         """Return the number of blocks in the longest block chain"""
@@ -538,7 +541,7 @@ class Proxy(BaseProxy):
             return lx(self._call('getblockhash', height))
         except InvalidParameterError as ex:
             raise IndexError('%s.getblockhash(): %s (%d)' %
-                             (self.__class__.__name__, ex.error['message'], ex.error['code']))
+                    (self.__class__.__name__, ex.error['message'], ex.error['code']))
 
     def getinfo(self):
         """Return a JSON object containing various state info"""
@@ -585,7 +588,7 @@ class Proxy(BaseProxy):
             r = [lx(txid) for txid in r]
             return r
 
-    def getrawtransaction(self, txid, verbose=False):
+    def getrawtransaction(self, txid, verbose=False, block_hash=None):
         """Return transaction with hash txid
 
         Raises IndexError if transaction not found.
@@ -593,16 +596,22 @@ class Proxy(BaseProxy):
         verbose - If true a dict is returned instead with additional
         information on the transaction.
 
+        block_hash - Hash of the block containing the transaction
+        (required when transaction not currently indexed by Bitcoin Core)
+
         Note that if all txouts are spent and the transaction index is not
         enabled the transaction may not be available.
         """
         try:
-            r = self._call('getrawtransaction', b2lx(txid), 1 if verbose else 0)
+            if block_hash is None:
+                r = self._call('getrawtransaction', b2lx(txid), 1 if verbose else 0)
+            else:
+                r = self._call('getrawtransaction', b2lx(txid), 1 if verbose else 0, b2lx(block_hash))
         except InvalidAddressOrKeyError as ex:
             raise IndexError('%s.getrawtransaction(): %s (%d)' %
-                             (self.__class__.__name__, ex.error['message'], ex.error['code']))
+                    (self.__class__.__name__, ex.error['message'], ex.error['code']))
         if verbose:
-            r['tx'] = CTransaction.deserialize(unhexlify(r['hex']))
+            r['tx'] = CTransaction.deserialize(unhexlify_str(r['hex']))
             del r['hex']
             del r['txid']
             del r['version']
@@ -611,8 +620,7 @@ class Proxy(BaseProxy):
             del r['vout']
             r['blockhash'] = lx(r['blockhash']) if 'blockhash' in r else None
         else:
-            r = CTransaction.deserialize(unhexlify(r))
-
+            r = CTransaction.deserialize(unhexlify_str(r))
         return r
 
     def getreceivedbyaddress(self, addr, minconf=1):
@@ -643,7 +651,7 @@ class Proxy(BaseProxy):
             r = self._call('gettransaction', b2lx(txid))
         except InvalidAddressOrKeyError as ex:
             raise IndexError('%s.getrawtransaction(): %s (%d)' %
-                             (self.__class__.__name__, ex.error['message'], ex.error['code']))
+                    (self.__class__.__name__, ex.error['message'], ex.error['code']))
         return r
 
     def gettxout(self, outpoint, includemempool=True):
@@ -659,7 +667,7 @@ class Proxy(BaseProxy):
             raise IndexError('%s.gettxout(): unspent txout %r not found' % (self.__class__.__name__, outpoint))
 
         r['txout'] = CTxOut(int(r['value'] * COIN),
-                            CScript(unhexlify(r['scriptPubKey']['hex'])))
+                            CScript(unhexlify_str(r['scriptPubKey']['hex'])))
         del r['value']
         del r['scriptPubKey']
         r['bestblock'] = lx(r['bestblock'])
@@ -699,14 +707,14 @@ class Proxy(BaseProxy):
                 unspent['address'] = CRavencoinAddress(unspent['address'])
             except KeyError:
                 pass
-            unspent['scriptPubKey'] = CScript(unhexlify(unspent['scriptPubKey']))
+            unspent['scriptPubKey'] = CScript(unhexlify_str(unspent['scriptPubKey']))
             unspent['amount'] = int(unspent['amount'] * COIN)
             r2.append(unspent)
         return r2
 
     def lockunspent(self, unlock, outpoints):
         """Lock or unlock outpoints"""
-        json_outpoints = [{'txid': b2lx(outpoint.hash), 'vout': outpoint.n}
+        json_outpoints = [{'txid':b2lx(outpoint.hash), 'vout':outpoint.n}
                           for outpoint in outpoints]
         return self._call('lockunspent', unlock, json_outpoints)
 
@@ -715,7 +723,7 @@ class Proxy(BaseProxy):
 
         allowhighfees - Allow even if fees are unreasonably high.
         """
-        hextx = hexlify(tx.serialize())
+        hextx = hexlify_str(tx.serialize())
         r = None
         if allowhighfees:
             r = self._call('sendrawtransaction', hextx, True)
@@ -738,7 +746,7 @@ class Proxy(BaseProxy):
     def sendtoaddress(self, addr, amount, comment='', commentto='', subtractfeefromamount=False):
         """Send amount to a given address"""
         addr = str(addr)
-        amount = float(amount) / COIN
+        amount = float(amount)/COIN
         r = self._call('sendtoaddress', addr, amount, comment, commentto, subtractfeefromamount)
         return lx(r)
 
@@ -747,9 +755,9 @@ class Proxy(BaseProxy):
 
         FIXME: implement options
         """
-        hextx = hexlify(tx.serialize())
+        hextx = hexlify_str(tx.serialize())
         r = self._call('signrawtransaction', hextx, *args)
-        r['tx'] = CTransaction.deserialize(unhexlify(r['hex']))
+        r['tx'] = CTransaction.deserialize(unhexlify_str(r['hex']))
         del r['hex']
         return r
 
@@ -759,19 +767,19 @@ class Proxy(BaseProxy):
 
         FIXME: implement options
         """
-        hextx = hexlify(tx.serialize())
+        hextx = hexlify_str(tx.serialize())
         r = self._call('signrawtransactionwithwallet', hextx, *args)
-        r['tx'] = CTransaction.deserialize(unhexlify(r['hex']))
+        r['tx'] = CTransaction.deserialize(unhexlify_str(r['hex']))
         del r['hex']
         return r
 
     def submitblock(self, block, params=None):
         """Submit a new block to the network.
 
-        params is optional and is currently ignored by ravencoind. See
-        https://en.ravencoin.it/wiki/BIP_0022 for full specification.
+        params is optional and is currently ignored by bitcoind. See
+        https://en.bitcoin.it/wiki/BIP_0022 for full specification.
         """
-        hexblock = hexlify(block.serialize())
+        hexblock = hexlify_str(block.serialize())
         if params is not None:
             return self._call('submitblock', hexblock, params)
         else:
@@ -783,7 +791,7 @@ class Proxy(BaseProxy):
         if r['isvalid']:
             r['address'] = CRavencoinAddress(r['address'])
         if 'pubkey' in r:
-            r['pubkey'] = unhexlify(r['pubkey'])
+            r['pubkey'] = unhexlify_str(r['pubkey'])
         return r
 
     def unlockwallet(self, password, timeout=60):
@@ -1144,6 +1152,4 @@ __all__ = (
     'InWarmupError',
     'RawProxy',
     'Proxy',
-    'RavenRawProxy',
-    'RavenProxy',
 )

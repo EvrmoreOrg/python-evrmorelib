@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2015 The python-bitcoinlib developers
+# Copyright (C) The python-bitcoinlib developers
 # Copyright (C) 2018-2020 The python-ravencoinlib developers
 #
 # This file is part of python-ravencoinlib.
@@ -10,21 +10,12 @@
 # propagated, or distributed except according to the terms contained in the
 # LICENSE file.
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 from ravencoin.core.key import CPubKey
 from ravencoin.core.serialize import ImmutableSerializable
 from ravencoin.wallet import P2PKHRavencoinAddress
 import ravencoin
 import base64
-import sys
-
-_bchr = chr
-_bord = ord
-if sys.version > '3':
-    long = int
-    _bchr = lambda x: bytes([x])
-    _bord = lambda x: x
 
 
 def VerifyMessage(address, message, sig):
@@ -43,7 +34,7 @@ def SignMessage(key, message):
     if key.is_compressed:
         meta += 4
 
-    return base64.b64encode(_bchr(meta) + sig)
+    return base64.b64encode(bytes([meta]) + sig)
 
 
 class RavencoinMessage(ImmutableSerializable):

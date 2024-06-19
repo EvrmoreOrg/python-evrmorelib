@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2014 The python-bitcoinlib developers
+# Copyright (C) The python-bitcoinlib developers
 #
 # This file is part of python-ravencoinlib.
 #
@@ -15,16 +15,6 @@ Includes things like representing addresses and converting them to/from
 scriptPubKeys; currently there is no actual wallet support implemented.
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import array
-import sys
-
-_bord = ord
-_tobytes = lambda x: array.array('B', x).tostring()
-if sys.version > '3':
-    _bord = lambda x: x
-    _tobytes = bytes
 
 import ravencoin
 import ravencoin.base58
@@ -78,7 +68,7 @@ class CBech32RavencoinAddress(ravencoin.bech32.CBech32Data, CRavencoinAddress):
         assert witver == 0
         self = super(CBech32RavencoinAddress, cls).from_bytes(
             witver,
-            _tobytes(witprog)
+            bytes(witprog)
         )
 
         if len(self) == 32:
@@ -250,12 +240,12 @@ class P2PKHRavencoinAddress(CBase58RavencoinAddress):
         elif scriptPubKey.is_witness_v0_nested_keyhash():
             return cls.from_bytes(scriptPubKey[3:23], ravencoin.params.BASE58_PREFIXES['PUBKEY_ADDR'])
         elif (len(scriptPubKey) == 25
-                and _bord(scriptPubKey[0])  == script.OP_DUP
-                and _bord(scriptPubKey[1])  == script.OP_HASH160
-                and _bord(scriptPubKey[2])  == 0x14
-                and _bord(scriptPubKey[23]) == script.OP_EQUALVERIFY
-                and _bord(scriptPubKey[24]) == script.OP_CHECKSIG):
-            return cls.from_bytes(scriptPubKey[3:23], ravencoin.params.BASE58_PREFIXES['PUBKEY_ADDR'])
+                and scriptPubKey[0]  == script.OP_DUP
+                and scriptPubKey[1]  == script.OP_HASH160
+                and scriptPubKey[2]  == 0x14
+                and scriptPubKey[23] == script.OP_EQUALVERIFY
+                and scriptPubKey[24] == script.OP_CHECKSIG):
+            return cls.from_bytes(scriptPubKey[3:23], bitcoin.params.BASE58_PREFIXES['PUBKEY_ADDR'])
 
         elif accept_bare_checksig:
             pubkey = None
@@ -263,14 +253,14 @@ class P2PKHRavencoinAddress(CBase58RavencoinAddress):
             # We can operate on the raw bytes directly because we've
             # canonicalized everything above.
             if (len(scriptPubKey) == 35 # compressed
-                  and _bord(scriptPubKey[0])  == 0x21
-                  and _bord(scriptPubKey[34]) == script.OP_CHECKSIG):
+                  and scriptPubKey[0]  == 0x21
+                  and scriptPubKey[34] == script.OP_CHECKSIG):
 
                 pubkey = scriptPubKey[1:34]
 
             elif (len(scriptPubKey) == 67 # uncompressed
-                    and _bord(scriptPubKey[0]) == 0x41
-                    and _bord(scriptPubKey[66]) == script.OP_CHECKSIG):
+                    and scriptPubKey[0] == 0x41
+                    and scriptPubKey[66] == script.OP_CHECKSIG):
 
                 pubkey = scriptPubKey[1:65]
 
@@ -308,14 +298,14 @@ class P2WSHRavencoinAddress(CBech32RavencoinAddress):
         return script.CScript([0, self])
 
     def to_redeemScript(self):
-        return NotImplementedError("not enough data in p2wsh address to reconstruct redeem script")
+        raise NotImplementedError("Not enough data in p2wsh address to reconstruct redeem script")
 
 
 class P2WPKHRavencoinAddress(CBech32RavencoinAddress):
 
     @classmethod
     def from_scriptPubKey(cls, scriptPubKey):
-        """Convert a scriptPubKey to a P2WSH address
+        """Convert a scriptPubKey to a P2WPKH address
 
         Raises CRavencoinAddressError if the scriptPubKey isn't of the correct
         form.
@@ -379,7 +369,7 @@ class CRavencoinSecret(ravencoin.base58.CBase58Data, CKey):
             raise CRavencoinSecretError('Not a base58-encoded secret key: got nVersion=%d; expected nVersion=%d' % \
                                       (self.nVersion, ravencoin.params.BASE58_PREFIXES['SECRET_KEY']))
 
-        CKey.__init__(self, self[0:32], len(self) > 32 and _bord(self[32]) == 1)
+        CKey.__init__(self, self[0:32], len(self) > 32 and self[32] == 1)
 
 
 __all__ = (

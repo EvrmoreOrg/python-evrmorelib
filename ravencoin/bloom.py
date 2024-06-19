@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2014 The python-bitcoinlib developers
+# Copyright (C) The python-bitcoinlib developers
 #
 # This file is part of python-ravencoinlib.
 #
@@ -11,10 +11,8 @@
 
 """Bloom filter support"""
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import struct
-import sys
 import math
 
 import ravencoin.core
@@ -56,16 +54,12 @@ def MurmurHash3(nHashSeed, vDataToHash):
     # tail
     k1 = 0
     j = (len(vDataToHash) // 4) * 4
-    bord = ord
-    if sys.version > '3':
-        # In Py3 indexing bytes returns numbers, not characters
-        bord = lambda x: x
     if len(vDataToHash) & 3 >= 3:
-        k1 ^= bord(vDataToHash[j+2]) << 16
+        k1 ^= vDataToHash[j+2] << 16
     if len(vDataToHash) & 3 >= 2:
-        k1 ^= bord(vDataToHash[j+1]) << 8
+        k1 ^= vDataToHash[j+1] << 8
     if len(vDataToHash) & 3 >= 1:
-        k1 ^= bord(vDataToHash[j])
+        k1 ^= vDataToHash[j]
 
     k1 &= 0xFFFFFFFF
     k1 = (k1 * c1) & 0xFFFFFFFF
@@ -180,11 +174,7 @@ class CBloomFilter(ravencoin.core.serialize.Serializable):
         return deserialized
 
     def stream_serialize(self, f):
-        if sys.version > '3':
-            ravencoin.core.serialize.BytesSerializer.stream_serialize(self.vData, f)
-        else:
-            # 2.7 has problems with f.write(bytearray())
-            ravencoin.core.serialize.BytesSerializer.stream_serialize(bytes(self.vData), f)
+        ravencoin.core.serialize.BytesSerializer.stream_serialize(self.vData, f)
         f.write(self.__struct.pack(self.nHashFuncs, self.nTweak, self.nFlags))
 
 __all__ = (

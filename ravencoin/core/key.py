@@ -16,24 +16,19 @@ WARNING: This module does not mlock() secrets; your private keys may end up on
 disk in swap! Use with caution!
 """
 import ctypes
-from ctypes.util import find_library
+import ctypes.util
 import hashlib
-import sys
 from os import urandom
 import ravencoin
 import ravencoin.signature
 
-_bchr = chr
-_bord = ord
-if sys.version > '3':
-    _bchr = lambda x: bytes([x])
-    _bord = lambda x: x
-
 import ravencoin.core.script
 
-_ssl = ctypes.cdll.LoadLibrary(find_library('ssl') or 'libeay32')
+_ssl = ctypes.cdll.LoadLibrary(
+    ctypes.util.find_library('ssl.35') or ctypes.util.find_library('ssl') or ctypes.util.find_library('libeay32')
+)
 
-_libsecp256k1_path = find_library('secp256k1')
+_libsecp256k1_path = ctypes.util.find_library('secp256k1')
 _libsecp256k1_enable_signing = False
 _libsecp256k1_context = None
 _libsecp256k1 = None
@@ -262,6 +257,8 @@ class CECKey:
         self.k = None
 
     def set_secretbytes(self, secret):
+        if(len(secret) != 32):
+            raise ValueError("Secret bytes must be exactly 32 bytes")
         priv_key = _ssl.BN_bin2bn(secret, 32, None)
         group = _ssl.EC_KEY_get0_group(self.k)
         pub_key = _ssl.EC_POINT_new(group)
@@ -437,6 +434,12 @@ class CECKey:
         norm_sig = ctypes.c_void_p(0)
         _ssl.d2i_ECDSA_SIG(ctypes.byref(norm_sig), ctypes.byref(ctypes.c_char_p(sig)), len(sig))
 
+        # Newer versions of OpenSSL (>3.0.0?) seem to fail here, leaving a null
+        # pointer in norm_sig
+        if not norm_sig:
+            return False
+
+        # Older versions (<3.0.0?) seem to fail here, with a empty derlen
         derlen = _ssl.i2d_ECDSA_SIG(norm_sig, 0)
         if derlen == 0:
             _ssl.ECDSA_SIG_free(norm_sig)
@@ -585,8 +588,8 @@ class CPubKey(bytes):
         if len(sig) != 65:
             raise ValueError("Signature should be 65 characters, not [%d]" % (len(sig), ))
 
-        recid = (_bord(sig[0]) - 27) & 3
-        compressed = (_bord(sig[0]) - 27) & 4 != 0
+        recid = (sig[0] - 27) & 3
+        compressed = (sig[0] - 27) & 4 != 0
 
         cec_key = CECKey()
         cec_key.set_compressed(compressed)
@@ -618,12 +621,7 @@ class CPubKey(bytes):
         return repr(self)
 
     def __repr__(self):
-        # Always have represent as b'<secret>' so test cases don't have to
-        # change for py2/3
-        if sys.version > '3':
-            return '%s(%s)' % (self.__class__.__name__, super(CPubKey, self).__repr__())
-        else:
-            return '%s(b%s)' % (self.__class__.__name__, super(CPubKey, self).__repr__())
+        return '%s(%s)' % (self.__class__.__name__, super(CPubKey, self).__repr__())
 
 __all__ = (
         'CECKey',

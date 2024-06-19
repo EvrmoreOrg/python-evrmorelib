@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2014 The python-bitcoinlib developers
+# Copyright (C) The python-bitcoinlib developers
 # Copyright (C) 2018-2020 The python-ravencoinlib developers
 #
 # This file is part of python-ravencoinlib.
@@ -10,7 +10,6 @@
 # propagated, or distributed except according to the terms contained in the
 # LICENSE file.
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import struct
 import socket

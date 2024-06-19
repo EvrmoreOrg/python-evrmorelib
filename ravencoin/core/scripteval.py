@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2017 The python-bitcoinlib developers
+# Copyright (C) The python-bitcoinlib developers
 #
 # This file is part of python-ravencoinlib.
 #
@@ -12,17 +12,10 @@
 """Script evaluation
 
 Be warned that there are highly likely to be consensus bugs in this code; it is
-unlikely to match Satoshi Ravencoin exactly. Think carefully before using this
+unlikely to match Ravencoin exactly. Think carefully before using this
 module.
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import sys
-_bord = ord
-if sys.version > '3':
-    long = int
-    _bord = lambda x: x
 
 import hashlib
 
@@ -30,6 +23,7 @@ import ravencoin.core
 import ravencoin.core._bignum
 import ravencoin.core.key
 import ravencoin.core.serialize
+from ravencoin.core.contrib.ripemd160 import ripemd160
 
 # Importing everything for simplicity; note that we use __all__ at the end so
 # we're not exporting the whole contents of the script module.
@@ -122,7 +116,7 @@ def _CastToBigNum(s, err_raiser):
 
 def _CastToBool(s):
     for i in range(len(s)):
-        sv = _bord(s[i])
+        sv = s[i]
         if sv != 0:
             if (i == (len(s) - 1)) and (sv == 0x80):
                 return False
@@ -137,7 +131,7 @@ def _CheckSig(sig, pubkey, script, txTo, inIdx, err_raiser):
 
     if len(sig) == 0:
         return False
-    hashtype = _bord(sig[-1])
+    hashtype = sig[-1]
     sig = sig[:-1]
 
     # Raw signature hash due to the SIGHASH_SINGLE bug
@@ -260,10 +254,10 @@ def _UnaryOp(opcode, stack, err_raiser):
             bn = -bn
 
     elif opcode == OP_NOT:
-        bn = long(bn == 0)
+        bn = int(bn == 0)
 
     elif opcode == OP_0NOTEQUAL:
-        bn = long(bn != 0)
+        bn = int(bn != 0)
 
     else:
         raise AssertionError("Unknown unary opcode encountered; this should not happen")
@@ -305,16 +299,16 @@ def _BinOp(opcode, stack, err_raiser):
         bn = bn1 - bn2
 
     elif opcode == OP_BOOLAND:
-        bn = long(bn1 != 0 and bn2 != 0)
+        bn = int(bn1 != 0 and bn2 != 0)
 
     elif opcode == OP_BOOLOR:
-        bn = long(bn1 != 0 or bn2 != 0)
+        bn = int(bn1 != 0 or bn2 != 0)
 
     elif opcode == OP_NUMEQUAL:
-        bn = long(bn1 == bn2)
+        bn = int(bn1 == bn2)
 
     elif opcode == OP_NUMEQUALVERIFY:
-        bn = long(bn1 == bn2)
+        bn = int(bn1 == bn2)
         if not bn:
             err_raiser(VerifyOpFailedError, opcode)
         else:
@@ -324,19 +318,19 @@ def _BinOp(opcode, stack, err_raiser):
             return
 
     elif opcode == OP_NUMNOTEQUAL:
-        bn = long(bn1 != bn2)
+        bn = int(bn1 != bn2)
 
     elif opcode == OP_LESSTHAN:
-        bn = long(bn1 < bn2)
+        bn = int(bn1 < bn2)
 
     elif opcode == OP_GREATERTHAN:
-        bn = long(bn1 > bn2)
+        bn = int(bn1 > bn2)
 
     elif opcode == OP_LESSTHANOREQUAL:
-        bn = long(bn1 <= bn2)
+        bn = int(bn1 <= bn2)
 
     elif opcode == OP_GREATERTHANOREQUAL:
-        bn = long(bn1 >= bn2)
+        bn = int(bn1 >= bn2)
 
     elif opcode == OP_MIN:
         if bn1 < bn2:
@@ -631,9 +625,7 @@ def _EvalScript(stack, scriptIn, txTo, inIdx, flags=()):
             elif sop == OP_RIPEMD160:
                 check_args(1)
 
-                h = hashlib.new('ripemd160')
-                h.update(stack.pop())
-                stack.append(h.digest())
+                stack.append(ripemd160(stack.pop()))
 
             elif sop == OP_ROT:
                 check_args(3)

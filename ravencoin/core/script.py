@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2015 The python-bitcoinlib developers
+# Copyright (C) The python-bitcoinlib developers
 #
 # This file is part of python-ravencoinlib.
 #
@@ -15,18 +15,8 @@ Functionality to build scripts, as well as SignatureHash(). Script evaluation
 is in ravencoin.core.scripteval
 """
 
-from __future__ import absolute_import, division, print_function
 
-import sys
-_bchr = chr
-_bord = ord
-if sys.version > '3':
-    long = int
-    _bchr = lambda x: bytes([x])
-    _bord = lambda x: x
-    from io import BytesIO as _BytesIO
-else:
-    from cStringIO import StringIO as _BytesIO
+from io import BytesIO
 
 import struct
 
@@ -50,9 +40,9 @@ class CScriptOp(int):
     def encode_op_pushdata(d):
         """Encode a PUSHDATA op, returning bytes"""
         if len(d) < 0x4c:
-            return b'' + _bchr(len(d)) + d # OP_PUSHDATA
+            return bytes([len(d)]) + d # OP_PUSHDATA
         elif len(d) <= 0xff:
-            return b'\x4c' + _bchr(len(d)) + d # OP_PUSHDATA1
+            return b'\x4c' + bytes([len(d)]) + d # OP_PUSHDATA1
         elif len(d) <= 0xffff:
             return b'\x4d' + struct.pack(b'<H', len(d)) + d # OP_PUSHDATA2
         elif len(d) <= 0xffffffff:
@@ -235,6 +225,7 @@ OP_NOP1 = CScriptOp(0xb0)
 OP_NOP2 = CScriptOp(0xb1)
 OP_CHECKLOCKTIMEVERIFY = OP_NOP2
 OP_NOP3 = CScriptOp(0xb2)
+OP_CHECKSEQUENCEVERIFY = OP_NOP3
 OP_NOP4 = CScriptOp(0xb3)
 OP_NOP5 = CScriptOp(0xb4)
 OP_NOP6 = CScriptOp(0xb5)
@@ -359,6 +350,7 @@ OPCODE_NAMES.update({
     OP_NOP2: 'OP_NOP2',
     OP_CHECKLOCKTIMEVERIFY: 'OP_CHECKLOCKTIMEVERIFY',
     OP_NOP3: 'OP_NOP3',
+    OP_CHECKSEQUENCEVERIFY: 'OP_CHECKSEQUENCEVERIFY',
     OP_NOP4: 'OP_NOP4',
     OP_NOP5: 'OP_NOP5',
     OP_NOP6: 'OP_NOP6',
@@ -480,6 +472,7 @@ OPCODES_BY_NAME = {
     'OP_NOP2': OP_NOP2,
     'OP_CHECKLOCKTIMEVERIFY': OP_CHECKLOCKTIMEVERIFY,
     'OP_NOP3': OP_NOP3,
+    'OP_CHECKSEQUENCEVERIFY': OP_CHECKSEQUENCEVERIFY,
     'OP_NOP4': OP_NOP4,
     'OP_NOP5': OP_NOP5,
     'OP_NOP6': OP_NOP6,
@@ -525,12 +518,12 @@ class CScript(bytes):
     def __coerce_instance(cls, other):
         # Coerce other into bytes
         if isinstance(other, CScriptOp):
-            other = _bchr(other)
-        elif isinstance(other, (int, long)):
+            other = bytes([other])
+        elif isinstance(other, int):
             if 0 <= other <= 16:
-                other = bytes(_bchr(CScriptOp.encode_op_n(other)))
+                other = bytes([CScriptOp.encode_op_n(other)])
             elif other == -1:
-                other = bytes(_bchr(OP_1NEGATE))
+                other = bytes([OP_1NEGATE])
             else:
                 other = CScriptOp.encode_op_pushdata(ravencoin.core._bignum.bn2vch(other))
         elif isinstance(other, (bytes, bytearray)):
@@ -573,7 +566,7 @@ class CScript(bytes):
         i = 0
         while i < len(self):
             sop_idx = i
-            opcode = _bord(self[i])
+            opcode = self[i]
             i += 1
 
             if opcode > OP_PUSHDATA4:
@@ -589,21 +582,21 @@ class CScript(bytes):
                     pushdata_type = 'PUSHDATA1'
                     if i >= len(self):
                         raise CScriptInvalidError('PUSHDATA1: missing data length')
-                    datasize = _bord(self[i])
+                    datasize = self[i]
                     i += 1
 
                 elif opcode == OP_PUSHDATA2:
                     pushdata_type = 'PUSHDATA2'
                     if i + 1 >= len(self):
                         raise CScriptInvalidError('PUSHDATA2: missing data length')
-                    datasize = _bord(self[i]) + (_bord(self[i+1]) << 8)
+                    datasize = self[i] + (self[i+1] << 8)
                     i += 2
 
                 elif opcode == OP_PUSHDATA4:
                     pushdata_type = 'PUSHDATA4'
                     if i + 3 >= len(self):
                         raise CScriptInvalidError('PUSHDATA4: missing data length')
-                    datasize = _bord(self[i]) + (_bord(self[i+1]) << 8) + (_bord(self[i+2]) << 16) + (_bord(self[i+3]) << 24)
+                    datasize = self[i] + (self[i+1] << 8) + (self[i+2] << 16) + (self[i+3] << 24)
                     i += 4
 
                 else:
@@ -677,9 +670,9 @@ class CScript(bytes):
         Note that this test is consensus-critical.
         """
         return (len(self) == 23 and
-                _bord(self[0]) == OP_HASH160 and
-                _bord(self[1]) == 0x14 and
-                _bord(self[22]) == OP_EQUAL)
+                self[0] == OP_HASH160 and
+                self[1] == 0x14 and
+                self[22] == OP_EQUAL)
 
     def is_witness_scriptpubkey(self):
         """Returns true if this is a scriptpubkey signaling segregated witness data.
@@ -748,7 +741,7 @@ class CScript(bytes):
                 if op > OP_16:
                     continue
 
-                elif op < OP_PUSHDATA1 and op > OP_0 and len(data) == 1 and _bord(data[0]) <= 16:
+                elif op < OP_PUSHDATA1 and op > OP_0 and len(data) == 1 and data[0] <= 16:
                     # Could have used an OP_n code, rather than a 1-byte push.
                     return False
 
@@ -771,7 +764,7 @@ class CScript(bytes):
     def is_unspendable(self):
         """Test if the script is provably unspendable"""
         return (len(self) > 0 and
-                _bord(self[0]) == OP_RETURN)
+                self[0] == OP_RETURN)
 
     def is_valid(self):
         """Return True if the script is valid, False otherwise
@@ -1019,7 +1012,7 @@ def SignatureHash(script, txTo, inIdx, hashtype, amount=None, sigversion=SIGVERS
             serialize_outputs = txTo.vout[inIdx].serialize()
             hashOutputs = ravencoin.core.Hash(serialize_outputs)
 
-        f = _BytesIO()
+        f = BytesIO()
         f.write(struct.pack("<i", txTo.nVersion))
         f.write(hashPrevouts)
         f.write(hashSequence)
@@ -1156,6 +1149,7 @@ __all__ = (
         'OP_NOP2',
         'OP_CHECKLOCKTIMEVERIFY',
         'OP_NOP3',
+        'OP_CHECKSEQUENCEVERIFY',
         'OP_NOP4',
         'OP_NOP5',
         'OP_NOP6',

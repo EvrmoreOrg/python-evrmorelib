@@ -1,4 +1,4 @@
-# Copyright (C) 2017 The python-bitcoinlib developers
+# Copyright (C) The python-bitcoinlib developers
 #
 # This file is part of python-ravencoinlib.
 #
@@ -10,14 +10,6 @@
 # LICENSE file.
 
 """Bech32 encoding and decoding"""
-
-import sys
-_bchr = chr
-_bord = ord
-if sys.version > '3':
-    long = int
-    _bchr = lambda x: bytes([x])
-    _bord = lambda x: x
 
 from ravencoin.segwit_addr import encode, decode
 import ravencoin

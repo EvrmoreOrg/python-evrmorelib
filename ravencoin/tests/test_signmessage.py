@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2015 The python-bitcoinlib developers
+# Copyright (C) The python-bitcoinlib developers
 #
 # This file is part of python-ravencoinlib.
 #
@@ -9,7 +9,6 @@
 # propagated, or distributed except according to the terms contained in the
 # LICENSE file.
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import unittest
 
@@ -18,13 +17,6 @@ from ravencoin.signmessage import RavencoinMessage, VerifyMessage, SignMessage
 import sys
 import os
 import json
-
-_bchr = chr
-_bord = ord
-if sys.version > '3':
-    long = int
-    _bchr = lambda x: bytes([x])
-    _bord = lambda x: x
 
 def load_test_vectors(name):
     with open(os.path.dirname(__file__) + '/data/' + name, 'r') as fd:

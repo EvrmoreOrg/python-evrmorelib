@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2014 The python-bitcoinlib developers
+# Copyright (C) The python-bitcoinlib developers
 #
 # This file is part of python-ravencoinlib.
 #
@@ -13,7 +13,6 @@
 #
 # Internally used for script evaluation; not to be used externally.
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import struct
 
