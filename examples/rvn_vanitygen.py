@@ -10,7 +10,7 @@
 # propagated, or distributed except according to the terms contained in the
 # LICENSE file.
 
-# Ravencoin vanity address generator
+# Evrmore vanity address generator
 # This is an example of address generation in python-ravencoinlib
 # Note this is not particularly secure as the private keys may remain accessible in (virtual) memory
 
@@ -19,10 +19,10 @@ import os
 import sys
 import time
 
-import ravencoin.base58
-from ravencoin.wallet import P2PKHRavencoinAddress, CRavencoinSecret
+import evrmore.base58
+from evrmore.wallet import P2PKHEvrmoreAddress, CEvrmoreSecret
 
-parser = argparse.ArgumentParser(description='Ravencoin vanity address generator')
+parser = argparse.ArgumentParser(description='Evrmore vanity address generator')
 parser.add_argument('search', metavar='search string', type=str,help='Search string')
 parser.add_argument('--anywhere',action="store_true",help="Search for string anywhere in address (default: leading characters only)")
 args=parser.parse_args()
@@ -35,18 +35,18 @@ if not anywhere and search_s[0] != "R":
     sys.exit(1)
 
 try:
-    ravencoin.base58.decode(search_s)
-except ravencoin.base58.InvalidBase58Error as e:
+    evrmore.base58.decode(search_s)
+except evrmore.base58.InvalidBase58Error as e:
     print("Error: {}".format(e))
     sys.exit(1)
 
-ravencoin.SelectParams('mainnet')
+evrmore.SelectParams('mainnet')
 
 c = 0
 start = time.time()
 while True:
-    privkey = CRavencoinSecret.from_secret_bytes(os.urandom(32))
-    addr = str(P2PKHRavencoinAddress.from_pubkey(privkey.pub))
+    privkey = CEvrmoreSecret.from_secret_bytes(os.urandom(32))
+    addr = str(P2PKHEvrmoreAddress.from_pubkey(privkey.pub))
     c+=1
     if anywhere:
         if search_s in addr:

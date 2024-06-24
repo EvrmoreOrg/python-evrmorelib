@@ -18,7 +18,7 @@ The RPC interface, evrmore.rpc, is designed to work with Evrmore Core v1.2.0.
 
     Python modules:
         x16r-hash, x16rv2-hash and kawpow
-        plyvel (requires libleveldb - for parsing Raven core .dat files)
+        plyvel (requires libleveldb - for parsing Evrmore core .dat files)
 
 ## Structure
 

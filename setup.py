@@ -11,21 +11,21 @@ with open(os.path.join(here, 'README.md')) as f:
 
 requires = ['x16r_hash','x16rv2_hash','kawpow']
 
-setup(name='python-ravencoinlib',
+setup(name='python-evrmorelib',
       version=__version__,
-      description='Ravencoin fork of python-bitcoinlib',
+      description='Evrmore fork of python-bitcoinlib',
       long_description=README,
       long_description_content_type='text/markdown',
       classifiers=[
           "Programming Language :: Python",
           "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
       ],
-      url='https://github.com/standard-error/python-ravencoinlib',
-      keywords='ravencoin',
+      url='https://github.com/EvrmoreOrg/python-evrmorelib',
+      keywords='evrmore',
       packages=find_packages(),
       zip_safe=False,
-      author = 'standard-error@github',
-      author_email = 'ravencoinlib@gmail.com',
+      author = 'EvrmoreOrg',
+      author_email = '',
       install_requires=requires,
-      test_suite="ravencoin.tests"
+      test_suite="evrmore.tests"
      )
