@@ -30,8 +30,6 @@ start = args.startblock
 if args.testnet:
     evrmore.SelectParams("testnet")
 else:
-    if args.startblock == 0:
-        start = evrmore.core.coreparams.nAssetActivationHeight
     evrmore.SelectParams("mainnet")
 
 r = EvrmoreProxy() # evrmore daemon must be running locally with rpc server enabled
@@ -39,7 +37,7 @@ r = EvrmoreProxy() # evrmore daemon must be running locally with rpc server enab
 try:
     end = r.getblockcount()
 except Exception as e:
-    print("Error: ".format(e))
+    print("Error: {}".format(e))
     sys.exit(1)
 
 for c in range(start,end):

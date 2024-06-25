@@ -1,6 +1,6 @@
 import unittest
 
-from evrmore.core.contrib import ripemd160
+from evrmore.core.contrib.ripemd160 import ripemd160
 
 
 class Test_ripemd160(unittest.TestCase):

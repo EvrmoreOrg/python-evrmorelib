@@ -25,9 +25,9 @@ def load_test_vectors(name):
 
 class Test_SignVerifyMessage(unittest.TestCase):
     def test_verify_message_simple(self):
-        address = "RE34JR9zKhCLu4R7JFaDJz8JnypJDmCE14"
+        address = "EcUicWyyb5EBrsiPB1fdQqEarQuVZmjyT5"
         message = address
-        signature = "IKUeo59jk2ueeSBDkugZ9PBbteNayMn2FOKAQ1/WvoNzKcd0DeB1ljzTASm2VV8BeP//jF0aU7ztE55LIVVyOr8="
+        signature = "IBHayJqbHKckXN8iDMm7PVL7f+y9ZfsuODgnPXwXln9rTh4Q1C03Jsj+jO6xDxcFalGgY8yr0Rihhbg1wX5LnyA="
 
         message = EvrmoreMessage(message)
 
@@ -39,8 +39,8 @@ class Test_SignVerifyMessage(unittest.TestCase):
             self.assertTrue(VerifyMessage(vector['address'], message, vector['signature']))
 
     def test_sign_message_simple(self):
-        key = CEvrmoreSecret("L1gVQSmAJDnkK1A1V3mJehL9xQbdai9CCx65d29seRFGVVheyngq")
-        address = "RL5dKQv7ZZYrqSYXNVgy2HvncjcQf8G6at"
+        key = CEvrmoreSecret("KywSNadPCm5bjGFomCT5xB57Xbiqj1LtAKeziz7z9tofSLuFKqrL")
+        address = "EcUicWyyb5EBrsiPB1fdQqEarQuVZmjyT5"
         message = address
 
         message = EvrmoreMessage(message)

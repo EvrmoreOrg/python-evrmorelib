@@ -1,5 +1,6 @@
 # Copyright (C) 2012-2018 The python-bitcoinlib developers
 # Copyright (C) 2018-2020 The python-ravencoinlib developers
+# Copyright (C) 2024 The python-evrmorelib developers
 #
 # This file is part of python-evrmorelib.
 #
@@ -18,22 +19,20 @@ from version import __version__
 
 
 class MainParams(evrmore.core.CoreMainParams):
-    MESSAGE_START = b'\x52\x41\x56\x4e'
-    DEFAULT_PORT = 8767
-    RPC_PORT = 8766
-    DNS_SEEDS = (('seed-raven.bitactivate.com', 'seed-raven.ravencoin.com'),
-                 ('seed-raven.ravencoin.org', ''))
-    BASE58_PREFIXES = {'PUBKEY_ADDR':60,
-                       'SCRIPT_ADDR':122,
+    MESSAGE_START = b'\x45\x56\x52\x4d'
+    DEFAULT_PORT = 8820
+    RPC_PORT = 8819
+    DNS_SEEDS = (('seed-mainnet-evr.evrmorecoin.org'))
+    BASE58_PREFIXES = {'PUBKEY_ADDR':33,
+                       'SCRIPT_ADDR':92,
                        'SECRET_KEY' :128}
     BECH32_HRP = ''
 
 class TestNetParams(evrmore.core.CoreTestNetParams):
-    MESSAGE_START = b'\x52\x56\x4e\x54'
-    DEFAULT_PORT = 18770
-    RPC_PORT = 18766
-    DNS_SEEDS = (('seed-testnet-raven.bitactivate.com', 'seed-testnet-raven.ravencoin.com'),
-                 ('seed-testnet-raven.ravencoin.org', ''))
+    MESSAGE_START = b'\x45\x56\x52\x54'
+    DEFAULT_PORT = 18820
+    RPC_PORT = 18819
+    DNS_SEEDS = (('seed-testnet-evr.evrmorecoin.org'))
     BASE58_PREFIXES = {'PUBKEY_ADDR':111,
                        'SCRIPT_ADDR':196,
                        'SECRET_KEY' :239}

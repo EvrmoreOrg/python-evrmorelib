@@ -114,7 +114,7 @@ class Test_msg_mempool(MessageTestCase):
 
 
 class Test_messages(unittest.TestCase):
-    verackbytes = b'\x52\x41\x56\x4everack\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00]\xf6\xe0\xe2'
+    verackbytes = b'\x45\x56\x52\x4dverack\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00]\xf6\xe0\xe2'
 
     def test_read_msg_verack(self):
         f = BytesIO(self.verackbytes)

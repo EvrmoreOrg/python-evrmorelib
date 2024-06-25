@@ -24,8 +24,7 @@ from .utils import format_hash
 
 
 # Constant separating blocks in the .blk files
-RAVENCOIN_CONSTANT = b"\x52\x41\x56\x4e" # RAVN
-
+RAVENCOIN_CONSTANT = b"\x45\x56\x52\x4d" # EVRM
 
 def get_files(path):
     """

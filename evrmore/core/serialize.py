@@ -16,14 +16,12 @@ You probably don't need to use these directly.
 
 
 import hashlib
-import x16r_hash
-import x16rv2_hash
-import kawpow
+import evrhash
 import struct
 
 from io import BytesIO
 
-from evrmore.core.contrib import ripemd160
+from evrmore.core.contrib.ripemd160 import ripemd160
 
 MAX_SIZE = 0x02000000
 
@@ -32,13 +30,7 @@ def Hash(msg):
     """SHA256^2)(msg) -> bytes"""
     return hashlib.sha256(hashlib.sha256(msg).digest()).digest()
 
-def X16RHash(msg):
-    return x16r_hash.getPoWHash(msg)
-
-def X16RV2Hash(msg):
-    return x16rv2_hash.getPoWHash(msg)
-
-def KawpowHash(msg):
+def EvrHash(msg):
 
     def revb(data):
         b = bytearray(data)
@@ -48,7 +40,7 @@ def KawpowHash(msg):
     header_hash = revb(Hash(msg[:80]))
     mix_hash = revb(msg[88:120])
     nNonce64 = struct.unpack("< Q",msg[80:88])[0]
-    result = revb(kawpow.light_verify(header_hash, mix_hash, nNonce64))
+    result = revb(evrhash.light_verify(header_hash, mix_hash, nNonce64))
     return result
 
 def Hash160(msg):
@@ -369,9 +361,7 @@ def uint256_to_shortstr(u):
 __all__ = (
         'MAX_SIZE',
         'Hash',
-        'X16RHash',
-        'X16RV2Hash',
-        'KawpowHash',
+        'EvrHash',
         'Hash160',
         'SerializationError',
         'SerializationTruncationError',

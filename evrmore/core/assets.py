@@ -1,4 +1,5 @@
 # Copyright (C) 2020 The python-ravencoinlib developers
+# Copyright (C) 2024 The python-evrmorelib developers
 #
 # This file is part of python-evrmorelib.
 #
@@ -58,7 +59,7 @@ def isnullassettype(data):
 
 
 class RvnAssetData(object):
-    # representation of op_rvn_asset data structure
+    # representation of op_evr_asset data structure
     def __init__(self, data=None):
         self._asset_type = None
         self._asset_name = ""
@@ -72,14 +73,14 @@ class RvnAssetData(object):
         if data is not None:
             if type(data) is str:
                 # pass binary or hex string to initialise object
-                # data must exclude the op_rvn_asset bytecode itself
+                # data must exclude the op_evr_asset bytecode itself
                 # and the first (script length) and last (75 = OP_DROP) bytes
                 data = x(data)
             self.data = data
 
             try:
                 prefix = struct.unpack('< 3s', data[:3])[0]
-                assert(prefix.decode("ascii") == "rvn")
+                assert(prefix.decode("ascii") == "evr")
             except Exception as e:
                 self.asset_type = 0
                 return # treat as nullassetdata

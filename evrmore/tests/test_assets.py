@@ -48,6 +48,12 @@ class Test_AssetNames(unittest.TestCase):
         with self.assertRaises(InvalidAssetName):
             CMainAsset("RAVEN")
 
+        with self.assertRaises(InvalidAssetName):
+            CMainAsset("EVR")
+
+        with self.assertRaises(InvalidAssetName):
+            CMainAsset("EVRMORE")
+
             
     def test_validnames(self):
         main_asset = CMainAsset("VALID.NAME")

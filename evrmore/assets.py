@@ -33,7 +33,8 @@ DOUBLE_PUNCTUATION = re.compile(r"^.*[._]{2,}.*$")
 LEADING_PUNCTUATION = re.compile(r"^[._].*$")
 TRAILING_PUNCTUATION = re.compile(r"^.*[._]$")
 
-RAVEN_NAMES = re.compile("^RVN$|^RAVEN$|^RAVENCOIN$")
+RAVEN_NAMES = re.compile("^#?EVRS?$|^#?EVERS?$|^#?EVRMORES?$|^#?EVERMORES?$|^#?EVRMORECOINS?$|^#?EVERMORECOINS?$" +
+                         "|^#?RVNS?$|^#?RAVENS?$|^#?RAVENCOINS?$")
 
 
 class InvalidAssetName(Exception):

@@ -521,15 +521,15 @@ class CBlockHeader(ImmutableSerializable):
         hashMerkleRoot = ser_read(f,32)
         nTime = struct.unpack(b"<I", ser_read(f,4))[0]
         nBits = struct.unpack(b"<I", ser_read(f,4))[0]
-        # FIXME this only works on mainnet, but we have no information on network and nVersion is unchanged...
-        if nTime > 1588788000: # new header format
+        global coreparams
+        if coreparams.NAME == "mainnet":
             nHeight = struct.unpack(b"<I", ser_read(f,4))[0]
             nonce64 = struct.unpack(b"<Q", ser_read(f,8))[0]
             mix_hash = ser_read(f,32)
             return cls(nVersion=nVersion, hashPrevBlock=hashPrevBlock, hashMerkleRoot=hashMerkleRoot, nTime=nTime, nBits=nBits, nNonce=0, \
                        nHeight=nHeight, nonce64=nonce64, mix_hash=mix_hash)
         else:
-            nNonce = struct.unpack(b"<I", ser_read(f,4))[0]
+            nNonce = struct.unpack(b"<I", ser_read(f, 4))[0]
             return cls(nVersion, hashPrevBlock, hashMerkleRoot, nTime, nBits, nNonce)
 
     def stream_serialize(self, f):
@@ -540,7 +540,8 @@ class CBlockHeader(ImmutableSerializable):
         f.write(self.hashMerkleRoot)
         f.write(struct.pack(b"<I", self.nTime))
         f.write(struct.pack(b"<I", self.nBits))
-        if self.nTime > 1588788000: # new header format
+        global coreparams
+        if coreparams.NAME == "mainnet":
             f.write(struct.pack(b"<I", self.nHeight))
             f.write(struct.pack(b"<Q", self.nonce64))
             f.write(self.mix_hash)
@@ -568,12 +569,10 @@ class CBlockHeader(ImmutableSerializable):
 
     def GetHash(self):
         global coreparams
-        if self.nTime >= coreparams.nKAWPOWActivationTime:
-           return KawpowHash(self.serialize())
-        elif self.nTime >= coreparams.nX16RV2ActivationTime:
-           return X16RV2Hash(self.serialize())
+        if coreparams.NAME == 'mainnet':
+           return EvrHash(self.serialize())
         else:
-           return X16RHash(self.serialize())
+           return Hash(self.serialize())
 
 
 class NoWitnessData(Exception):
@@ -752,26 +751,18 @@ class CoreChainParams(object):
 class CoreMainParams(CoreChainParams):
     MAX_MONEY = 21000000 * 1000 * COIN
     NAME = 'mainnet'
-    GENESIS_BLOCK = CBlock.deserialize(x('04000000000000000000000000000000000000000000000000000000000000000000000016355fae8b6a26f2fa708d39997654c44b501f308d802325359a7367a800ff28c60e4d5affff001ee0d47d010101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff570004ffff001d01044c4d5468652054696d65732030332f4a616e2f3230313820426974636f696e206973206e616d65206f66207468652067616d6520666f72206e65772067656e65726174696f6e206f66206669726d73ffffffff010088526a74000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
-    SUBSIDY_HALVING_INTERVAL = 210000 * 10
-    PROOF_OF_WORK_LIMIT = 0x00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    nDGWActivationBlock = 338778
-    nAssetActivationHeight = 435456
-    nX16RV2ActivationTime = 1569945600
-    nKAWPOWActivationTime = 1588788000
+    GENESIS_BLOCK_HASH = '0000007b11d0481b2420a7c656ef76775d54ab5b29ee7ea250bc768535693b05'
+    GENESIS_BLOCK_MERKLEROOT = 'c191c775b10d2af1fcccb4121095b2a018f1bee84fa5efb568fcddd383969262'
+    SUBSIDY_HALVING_INTERVAL = 1648776
+    PROOF_OF_WORK_LIMIT = 0x000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
 class CoreTestNetParams(CoreMainParams):
     NAME = 'testnet'
-    GENESIS_BLOCK = CBlock.deserialize(x('02000000000000000000000000000000000000000000000000000000000000000000000016355fae8b6a26f2fa708d39997654c44b501f308d802325359a7367a800ff2820e0a35bffff001e8847ee000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff570004ffff001d01044c4d5468652054696d65732030332f4a616e2f3230313820426974636f696e206973206e616d65206f66207468652067616d6520666f72206e65772067656e65726174696f6e206f66206669726d73ffffffff010088526a74000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
-    nX16RV2ActivationTime = 1569931200
-    nKAWPOWActivationTime = 1585159200
 
 class CoreRegTestParams(CoreTestNetParams):
     NAME = 'regtest'
-    GENESIS_BLOCK = CBlock.deserialize(x('04000000000000000000000000000000000000000000000000000000000000000000000016355fae8b6a26f2fa708d39997654c44b501f308d802325359a7367a800ff28a621d95affff7f20010000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff570004ffff001d01044c4d5468652054696d65732030332f4a616e2f3230313820426974636f696e206973206e616d65206f66207468652067616d6520666f72206e65772067656e65726174696f6e206f66206669726d73ffffffff010088526a74000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
     SUBSIDY_HALVING_INTERVAL = 150
     PROOF_OF_WORK_LIMIT = 2**256-1 >> 1
-    nX16RV2ActivationTime = 1566571889
 
 """Master global setting for what core chain params we're using"""
 coreparams = CoreMainParams()
@@ -789,8 +780,6 @@ def _SelectCoreParams(name):
         coreparams = CoreTestNetParams()
     elif name == 'regtest':
         coreparams = CoreRegTestParams()
-    elif name == 'signet':
-        coreparams = CoreSigNetParams()
     else:
         raise ValueError('Unknown chain %r' % name)
 
