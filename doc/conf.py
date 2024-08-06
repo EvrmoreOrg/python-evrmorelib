@@ -12,7 +12,7 @@
 # serve to show the default.
 
 PROJECT = 'python-ravencoinlib'
-DESCRIPTION = 'The Swiss Army Knife of the Ravencoin protocol.'
+DESCRIPTION = 'The Swiss Army Knife of the Evrmore protocol.'
 AUTHORS = 'The python-ravencoinlib developers'
 
 import sphinx

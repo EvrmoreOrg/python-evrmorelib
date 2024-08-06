@@ -13,13 +13,13 @@
 import sys,os
 import argparse
 import re
-from ravencoin.blockchain import Blockchain
-from ravencoin.core import b2x,b2lx, COIN
-from ravencoin.wallet import CRavencoinAddress,CRavencoinAddressError
-from ravencoin.core.script import OP_RETURN
+from evrmore.blockchain import Blockchain
+from evrmore.core import b2x,b2lx, COIN
+from evrmore.wallet import CEvrmoreAddress, CEvrmoreAddressError
+from evrmore.core.script import OP_RETURN
 
-parser = argparse.ArgumentParser(description='Scans Ravencoin block database files (blk*.dat) for text in OP_RETURNs')
-parser.add_argument('-D', '--dir',default="~/.raven/blocks/",type=str,help="Directory containing Ravencoin block database")
+parser = argparse.ArgumentParser(description='Scans Evrmore block database files (blk*.dat) for text in OP_RETURNs')
+parser.add_argument('-D', '--dir',default="~/.evrmore/blocks/",type=str,help="Directory containing Evrmore block database")
 parser.add_argument('-S', '--startblock',default=0,type=int,help="Scan starting block (default: 0)")
 parser.add_argument('-E', '--endblock',default=0,type=int,help="Scan ending block (default: all)")
 parser.add_argument('--cachefile',default="",type=str,help="Block database index cache filename (default: no caching)")

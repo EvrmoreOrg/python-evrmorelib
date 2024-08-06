@@ -1,5 +1,41 @@
 # python-bitcoinlib release notes
 
+## v0.12.2
+
+* Fixed RPC cookie location for testnet
+
+## v0.12.1
+
+* Added `calc_weight()` method.
+* (Hopefully) resolved failure to find `libeay32` on Windows.
+
+## v0.12.0
+
+* `CECKey` now rejects secrets that aren't exactly 32 bytes
+* Now compatible with OpenSSL v3; broke compatibility with certain script edge
+  cases around malformed signatures. This is acceptable because
+  python-bitcoinlib doesn't claim to have consensus compatibility and no-one
+  should use it for script/tx validation.
+
+## v0.11.2
+
+* Fixed one remaining use of OpenSSL for RIPEMD-160
+
+## v0.11.1
+
+* Pure-python RIPEMD-160, for newer versions of OpenSSL without RIPEMD-160
+  support.
+* Signet support
+
+## v0.11.0
+
+* Bech32 implementation
+* Segwit implementation (for P2WSH and P2WPKH transactions) and examples
+* Use libsecp256k1 for signing
+* Implement OP_CHECKSEQUENCEVERIFY
+
+New maintainer: Bryan Bishop <kanzure@gmail.com>
+
 ## v0.10.2
 
 Note: this will be the last release of python-bitcoinlib with Python 2.7

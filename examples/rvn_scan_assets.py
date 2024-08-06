@@ -12,15 +12,15 @@
 
 import sys
 import argparse
-import ravencoin
-import ravencoin.core
-from ravencoin.rpc import RavenProxy
-from ravencoin.core import COIN
-from ravencoin.core.assets import RvnAssetData
-from ravencoin.core.script import OP_RVN_ASSET,CScriptOp
-from ravencoin.assets import CAssetName
+import evrmore
+import evrmore.core
+from evrmore.rpc import EvrmoreProxy
+from evrmore.core import COIN
+from evrmore.core.assets import RvnAssetData
+from evrmore.core.script import OP_RVN_ASSET,CScriptOp
+from evrmore.assets import CAssetName
 
-parser = argparse.ArgumentParser(description='Scans Ravencoin blockchain for assets using RPC')
+parser = argparse.ArgumentParser(description='Scans Evrmore blockchain for assets using RPC')
 parser.add_argument('--testnet',action="store_true",help="Use testnet (default: mainnet)")
 parser.add_argument('--startblock',type=int,default=0,help="Scan starting block")
 parser.add_argument('--match',type=str,default="",help="Asset name match string (default: all)")
@@ -28,18 +28,16 @@ args=parser.parse_args()
 
 start = args.startblock
 if args.testnet:
-    ravencoin.SelectParams("testnet")
+    evrmore.SelectParams("testnet")
 else:
-    if args.startblock == 0:
-        start = ravencoin.core.coreparams.nAssetActivationHeight
-    ravencoin.SelectParams("mainnet")
+    evrmore.SelectParams("mainnet")
 
-r = RavenProxy() # ravencoin daemon must be running locally with rpc server enabled
+r = EvrmoreProxy() # evrmore daemon must be running locally with rpc server enabled
 
 try:
     end = r.getblockcount()
 except Exception as e:
-    print("Error: ".format(e))
+    print("Error: {}".format(e))
     sys.exit(1)
 
 for c in range(start,end):
