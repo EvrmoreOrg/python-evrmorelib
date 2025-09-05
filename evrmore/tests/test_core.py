@@ -15,8 +15,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import unittest
 
 from evrmore.core import *
-from evrmore.core.serialize import X16RHash, X16RV2Hash
-
+from evrmore.core.serialize import KawpowHash
 
 class Test_str_value(unittest.TestCase):
     def test(self):
@@ -60,13 +59,17 @@ class Test_CBlockHeader(unittest.TestCase):
                                hashPrevBlock=lx(
                                    '0000000000000000000000000000000000000000000000000000000000000000'),
                                hashMerkleRoot=lx(
-                                   '28ff00a867739a352523808d301f504bc4547699398d70faf2266a8bae5f3516'),
-                               nTime=1514999494,
+                                   'c191c775b10d2af1fcccb4121095b2a018f1bee84fa5efb568fcddd383969262'),
+                               nTime=1667072172,
                                nBits=0x1e00ffff,
-                               nNonce=25023712)
+                               nNonce=0,
+                               nonce64=1777396,
+                               mix_hash=lx(
+                                   '0000000000000000000000000000000000000000000000000000000000000000')
+                               )
         serialized = genesis.serialize()
-        self.assertEqual(X16RHash(serialized),
-                         lx('0000006b444bc2f2ffe627be9d9e7e7a0730000870ef6eb6da46c8eae389df90'))
+        self.assertEqual(KawpowHash(serialized),
+                         lx('0000007b11d0481b2420a7c656ef76775d54ab5b29ee7ea250bc768535693b05'))        # Evrmore's actual genesis block hash
 
         genesis2 = CBlockHeader.deserialize(serialized)
         self.assertEqual(genesis, genesis2)
@@ -76,12 +79,16 @@ class Test_CBlockHeader(unittest.TestCase):
                                hashPrevBlock=lx(
                                    '0000000000000000000000000000000000000000000000000000000000000000'),
                                hashMerkleRoot=lx(
-                                   '28ff00a867739a352523808d301f504bc4547699398d70faf2266a8bae5f3516'),
-                               nTime=1514999494,
+                                   'c191c775b10d2af1fcccb4121095b2a018f1bee84fa5efb568fcddd383969262'),
+                               nTime=1667072172,
                                nBits=0x1e00ffff,
-                               nNonce=25023712)
+                               nNonce=0,
+                               nonce64=1777396,
+                               mix_hash=lx(
+                                   '0000000000000000000000000000000000000000000000000000000000000000')
+                               )
         self.assertEqual(genesis.GetHash(), lx(
-            '0000006b444bc2f2ffe627be9d9e7e7a0730000870ef6eb6da46c8eae389df90'))
+            '0000007b11d0481b2420a7c656ef76775d54ab5b29ee7ea250bc768535693b05'))
 
     def test_calc_difficulty(self):
         def T(nbits, expected):
@@ -89,27 +96,27 @@ class Test_CBlockHeader(unittest.TestCase):
             actual = round(actual, 3)
             self.assertEqual(actual, expected)
 
-        T(486604799,        1.000)  # block 0
-        T(486594666,        1.183)  # block 33333
-        T(469809688,      352.161)  # block 74000
-        T(453179945,    22012.381)  # block 105000
-        T(436527338,  3438908.960)  # block 210000
-        T(426957810, 37392766.136)  # block 250000
+        T(486604799,        1.000)  # bitcoin block 0, 0x1d00ffff
+        T(486594666,        1.183)  # bitcoin block 33333, 0x1d00d86a
+        T(469809688,      352.161)  # bitcoin block 74000, 0x1c00ba18
+        T(453179945,    22012.381)  # bitcoin block 105000, 0x1b02fa29
+        T(436527338,  3438908.960)  # bitcoin block 210000, 0x1a04e0ea
+        T(426957810, 37392766.136)  # bitcoin block 250000, 0x1972dbf2
 
 
 class Test_CBlock(unittest.TestCase):
-    def test_serialization(self):
-        initial_serialized = x('04000000000000000000000000000000000000000000000000000000000000000000000016355fae8b6a26f2fa708d39997654c44b501f308d802325359a7367a800ff28c60e4d5affff001ee0d47d010101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff570004ffff001d01044c4d5468652054696d65732030332f4a616e2f3230313820426974636f696e206973206e616d65206f66207468652067616d6520666f72206e65772067656e65726174696f6e206f66206669726d73ffffffff010088526a74000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000')
+    def test_serialization(self):       # use Evrmore mainnet Block 1
+        initial_serialized = x('00000030053b69358576bc50a27eee295bab545d7776ef56c6a720241b48d0117b000000f1bc5bdb7415af47aacbd840c5c77a2ff7f8c42ab34c8eaa2b1adc02ea152f95cce35f63ffff001e0100000080dd2a4801c58ea5272d8df4076c2864e34fb9cce7c9e83bdbc1b9a4c8334bfec28163530b2fac0f01020000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff025100ffffffff0300715a363a0000001976a9146288284ff8bc5dab99577dad295912666b909d1488ac0029d1770600000017a914a78f72cdb3a7ee5f09d5259ae7eb64231858bdc2870000000000000000266a24aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf90120000000000000000000000000000000000000000000000000000000000000000000000000')
         genesis = CBlock.deserialize(initial_serialized)
         serialized = genesis.serialize()
-        self.assertEqual(X16RHash(serialized[0:80]),
-                         lx('0000006b444bc2f2ffe627be9d9e7e7a0730000870ef6eb6da46c8eae389df90'))
+        self.assertEqual(KawpowHash(serialized[0:80]),
+                         lx('00000030053b69358576bc50a27eee295bab545d7776ef56c6a720241b48d0117b000000f1bc5bdb7415af47aacbd840c5c77a2ff7f8c42ab34c8eaa2b1adc02ea152f95cce35f63ffff001e0100000080dd2a4801c58ea5272d8df4076c2864e34fb9cce7c9e83bdbc1b9a4c8334bfec28163530b2fac0f01020000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff025100ffffffff0300715a363a0000001976a9146288284ff8bc5dab99577dad295912666b909d1488ac0029d1770600000017a914a78f72cdb3a7ee5f09d5259ae7eb64231858bdc2870000000000000000266a24aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf90120000000000000000000000000000000000000000000000000000000000000000000000000'))
         self.assertEqual(serialized, initial_serialized)
 
     def test_GetHash(self):
         genesis = CBlock.deserialize(x('04000000000000000000000000000000000000000000000000000000000000000000000016355fae8b6a26f2fa708d39997654c44b501f308d802325359a7367a800ff28c60e4d5affff001ee0d47d010101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff570004ffff001d01044c4d5468652054696d65732030332f4a616e2f3230313820426974636f696e206973206e616d65206f66207468652067616d6520666f72206e65772067656e65726174696f6e206f66206669726d73ffffffff010088526a74000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
         self.assertEqual(genesis.GetHash(), lx(
-            '0000006b444bc2f2ffe627be9d9e7e7a0730000870ef6eb6da46c8eae389df90'))
+            '00000061fea06b985451647b6c4b111c0883017a80c4cce29a4277d7cc9c3d69'))
 
     def test_calc_merkle_root_of_empty_block(self):
         """CBlock.calc_merkle_root() fails if vtx empty"""
@@ -117,7 +124,7 @@ class Test_CBlock(unittest.TestCase):
         with self.assertRaises(ValueError):
             block.calc_merkle_root()
 
-    def test_calc_merkle_root(self):
+    def test_calc_merkle_root(self):    # use blocks from bitcoin to check calculations; it all uses hashlib.sha256(hashlib.sha256(msg).digest()).digest()
         # genesis
         block = CBlock.deserialize(x('0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
         self.assertEqual(block.calc_merkle_root(), lx(

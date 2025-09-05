@@ -20,7 +20,7 @@ from evrmore.core import (
     # convert bytes to little-endian hex string (see lx)
     b2lx,
 
-    # number of satoshis per evrmore
+    # number of satoshis per EVR
     COIN,
 
     # a type for a transaction that isn't finished building

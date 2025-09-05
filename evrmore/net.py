@@ -25,7 +25,7 @@ from evrmore.core.serialize import (
 )
 from evrmore.core import b2lx
 
-PROTO_VERSION = 70026
+PROTO_VERSION = 70029
 CADDR_TIME_VERSION = 31402
 IPV4_COMPAT = b"\x00" * 10 + b"\xff" * 2
 

@@ -13,7 +13,7 @@
 """Script evaluation
 
 Be warned that there are highly likely to be consensus bugs in this code; it is
-unlikely to match Satoshi Evrmore exactly. Think carefully before using this
+unlikely to match Evrmore core exactly. Think carefully before using this
 module.
 """
 
@@ -645,7 +645,7 @@ def _EvalScript(stack, scriptIn, txTo, inIdx, flags=()):
                     # If we kept to that limit we'd have a narrow definition
                     # of nLockTime, resulting in nLockTime's rather ugly
                     # adjustment for the 1 January 2038 problem and the issue
-                    # of whether to use the satoshi 2038 adjustment to the
+                    # of whether to use the bitcoin 2038 adjustment to the
                     # same problem.
                     #
                     # Instead, we verify nLockTime against the full possible

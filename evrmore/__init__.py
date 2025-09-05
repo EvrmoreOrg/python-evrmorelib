@@ -1,6 +1,5 @@
 # Copyright (C) 2012-2018 The python-bitcoinlib developers
-# Copyright (C) 2020 The python-ravencoinlib developers
-# Copyright (C) 2022-2025 The python-evrmorelib developers
+# Copyright (C) 2018-2020 The python-evrmorelib developers
 #
 # This file is part of python-evrmorelib.
 #
@@ -20,37 +19,35 @@ from version import __version__
 
 class MainParams(evrmore.core.CoreMainParams):
     MESSAGE_START = b'\x45\x56\x52\x4d'
-    DEFAULT_PORT = 8767
-    RPC_PORT = 8766
-    DNS_SEEDS = (('seed-evrmore.bitactivate.com', 'seed-evrmore.evrmore.com'),
-                 ('seed-evrmore.evrmore.org', ''))
+    DEFAULT_PORT = 8820
+    RPC_PORT = 8819
+    DNS_SEEDS = (('seed-mainnet-evr.evrmorecoin.org', 'seed-evrmore.evrmore.com'))
     BASE58_PREFIXES = {'PUBKEY_ADDR': 33,
                        'SCRIPT_ADDR': 92,
                        'SECRET_KEY': 128}
-    BECH32_HRP = 'ev'
+    BECH32_HRP = 'evr'
 
 
 class TestNetParams(evrmore.core.CoreTestNetParams):
-    MESSAGE_START = b'\x45\x56\x52\x4d'
-    DEFAULT_PORT = 18770
-    RPC_PORT = 18766
-    DNS_SEEDS = (('seed-testnet-evrmore.bitactivate.com', 'seed-testnet-evrmore.evrmore.com'),
-                 ('seed-testnet-evrmore.evrmore.org', ''))
+    MESSAGE_START = b'\x45\x56\x52\x54'
+    DEFAULT_PORT = 18820
+    RPC_PORT = 18819
+    DNS_SEEDS = (('seed-testnet-evr.evrmorecoin.org', 'seed-testnet-evrmore.evrmore.com'))
     BASE58_PREFIXES = {'PUBKEY_ADDR': 111,
                        'SCRIPT_ADDR': 196,
                        'SECRET_KEY': 239}
-    BECH32_HRP = ''
+    BECH32_HRP = 'evrt'
 
 
 class RegTestParams(evrmore.core.CoreRegTestParams):
-    MESSAGE_START = b'\x43\x52\x4f\x57'
+    MESSAGE_START = b'\xfa\xbf\xb5\xda'
     DEFAULT_PORT = 18444
     RPC_PORT = 18443
     DNS_SEEDS = ()
     BASE58_PREFIXES = {'PUBKEY_ADDR': 111,
                        'SCRIPT_ADDR': 196,
                        'SECRET_KEY': 239}
-    BECH32_HRP = ''
+    BECH32_HRP = 'evrr'
 
 
 """Master global setting for what chain params we're using.

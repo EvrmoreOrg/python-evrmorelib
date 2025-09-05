@@ -18,8 +18,6 @@ You probabably don't need to use these directly.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import hashlib
-import x16r_hash
-import x16rv2_hash
 import kawpow
 import struct
 
@@ -41,14 +39,6 @@ MAX_SIZE = 0x02000000
 def Hash(msg):
     """SHA256^2)(msg) -> bytes"""
     return hashlib.sha256(hashlib.sha256(msg).digest()).digest()
-
-
-def X16RHash(msg):
-    return x16r_hash.getPoWHash(msg)
-
-
-def X16RV2Hash(msg):
-    return x16rv2_hash.getPoWHash(msg)
 
 
 def KawpowHash(msg):
@@ -397,8 +387,6 @@ def uint256_to_shortstr(u):
 __all__ = (
     'MAX_SIZE',
     'Hash',
-    'X16RHash',
-    'X16RV2Hash',
     'KawpowHash',
     'Hash160',
     'SerializationError',

@@ -5,6 +5,37 @@ structures and protocol. WIP - Test before use
 
 The RPC interface, evrmore.rpc, is designed to work with Evrmore Core v1.0.5.
 
+==============================
+# Temporary usage notes:
+
+This repository contains the latest version of python-evrmorelib.
+
+python-evrmorelib is already available on the public PyPi Python Package 
+  Index (pypi.org) which you could install using the command "pip install 
+  python-evrmorelib". But for the time being, PyPi contains an older version
+  while updates are being made here, to avoid breaking projects which
+  already use the PyPi version.
+
+To install and use the newer version, you could do something like the
+  following (assuming Linux, Python3, and using virtualenv to keep your 
+  system clean):
+
+  sudo apt install virtualenv
+  sudo apt install libssl-dev
+  python3 -m virtualenv myenv
+  source ./myenv/bin/activate
+  python3 -m pip install wheel setuptools
+  python3 -m pip install plyvel
+  python3 -m pip install kawpow
+  python3 -m pip install git+https://github.com/EvrmoreOrg/python-evrmorelib
+
+When you are done, you can just run "deactivate" and throw away the "myenv"
+  directory to return your system to its previous state.
+
+PyPi will be updated to a newer version when this version is ready.
+
+==============================
+
 ## Requirements
 
     libssl
@@ -12,7 +43,7 @@ The RPC interface, evrmore.rpc, is designed to work with Evrmore Core v1.0.5.
     Windows/other: https://wiki.openssl.org/index.php/Binaries 
 
     Python modules:
-        x16r-hash, x16rv2-hash and kawpow
+        kawpow
         plyvel (requires libleveldb - for parsing Evrmore core .dat files)
 
 ## Structure
@@ -29,7 +60,7 @@ consensus critical and non-consensus-critical.
     evrmore.core.scripteval - Script evaluation/verification
     evrmore.core.serialize  - Serialization
 
-In the future the evrmore.core may use the Satoshi sourcecode directly as a
+In the future the evrmore.core may use the Evrmore core sourcecode directly as a
 library. Non-consensus critical modules include the following:
 
     evrmore          - Chain selection
@@ -42,9 +73,9 @@ library. Non-consensus critical modules include the following:
     evrmore.wallet   - Wallet-related code, currently Evrmore address and
                        private key support
 
-Effort has been made to follow the Satoshi source relatively closely, for
+Effort has been made to follow the Evrmore core source relatively closely, for
 instance Python code and classes that duplicate the functionality of
-corresponding Satoshi C++ code uses the same naming conventions: CTransaction,
+corresponding Evrmore core C++ code uses the same naming conventions: CTransaction,
 CBlockHeader, nValue etc. Otherwise Python naming conventions are followed.
 
 
@@ -90,7 +121,7 @@ Do the following:
 
 Where NAME is one of 'testnet', 'mainnet', or 'regtest'. The chain currently
 selected is a global variable that changes behavior everywhere, just like in
-the Satoshi codebase.
+the Evrmore core codebase.
 
 
 ## Unit tests

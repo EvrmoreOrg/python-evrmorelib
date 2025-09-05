@@ -154,7 +154,7 @@ class BaseProxy(object):
     def __init__(self,
                  service_url=None,
                  service_port=None,
-                 btc_conf_file=None,
+                 current_conf_file=None,
                  timeout=DEFAULT_HTTP_TIMEOUT,
                  connection=None):
 
@@ -166,23 +166,23 @@ class BaseProxy(object):
 
         if service_url is None:
             # Figure out the path to the evrmore.conf file
-            if btc_conf_file is None:
+            if current_conf_file is None:
                 if platform.system() == 'Darwin':
-                    btc_conf_file = os.path.expanduser(
+                    current_conf_file = os.path.expanduser(
                         '~/Library/Application Support/Evrmore/')
                 elif platform.system() == 'Windows':
-                    btc_conf_file = os.path.join(
+                    current_conf_file = os.path.join(
                         os.environ['APPDATA'], 'Evrmore')
                 else:
-                    btc_conf_file = os.path.expanduser('~/.evrmore')
-                btc_conf_file = os.path.join(btc_conf_file, 'evrmore.conf')
+                    current_conf_file = os.path.expanduser('~/.evrmore')
+                current_conf_file = os.path.join(current_conf_file, 'evrmore.conf')
 
-            # Evrmore Core accepts empty rpcuser, not specified in btc_conf_file
+            # Evrmore Core accepts empty rpcuser, not specified in current_conf_file
             conf = {'rpcuser': ""}
 
             # Extract contents of evrmore.conf to build service_url
             try:
-                with open(btc_conf_file, 'r') as fd:
+                with open(current_conf_file, 'r') as fd:
                     for line in fd.readlines():
                         if '#' in line:
                             line = line[:line.index('#')]
@@ -203,7 +203,7 @@ class BaseProxy(object):
             service_url = ('%s://%s:%d' %
                            ('http', conf['rpchost'], conf['rpcport']))
 
-            cookie_dir = conf.get('datadir', os.path.dirname(btc_conf_file))
+            cookie_dir = conf.get('datadir', os.path.dirname(current_conf_file))
             if evrmore.params.NAME != "mainnet":
                 cookie_dir = os.path.join(cookie_dir, evrmore.params.NAME)
             cookie_file = os.path.join(cookie_dir, ".cookie")
@@ -217,7 +217,7 @@ class BaseProxy(object):
                 else:
                     raise ValueError(
                         'Cookie file unusable (%s) and rpcpassword not specified in the configuration file: %r' % (
-                            err, btc_conf_file))
+                            err, current_conf_file))
 
         else:
             url = urlparse.urlparse(service_url)
@@ -331,12 +331,12 @@ class RawProxy(BaseProxy):
     def __init__(self,
                  service_url=None,
                  service_port=None,
-                 btc_conf_file=None,
+                 current_conf_file=None,
                  timeout=DEFAULT_HTTP_TIMEOUT,
                  **kwargs):
         super(RawProxy, self).__init__(service_url=service_url,
                                        service_port=service_port,
-                                       btc_conf_file=btc_conf_file,
+                                       current_conf_file=current_conf_file,
                                        timeout=timeout,
                                        **kwargs)
 
@@ -363,20 +363,19 @@ class Proxy(BaseProxy):
     Unlike ``RawProxy``, data is passed as ``evrmore.core`` objects or packed
     bytes, rather than JSON or hex strings. Not all methods are implemented
     yet; you can use ``call`` to access missing ones in a forward-compatible
-    way. Assumes Evrmore Core version >= v0.16.0; older versions mostly work,
-    but there are a few incompatibilities.
+    way. Assumes Evrmore Core version >= v1.0.5.
     """
 
     def __init__(self,
                  service_url=None,
                  service_port=None,
-                 btc_conf_file=None,
+                 current_conf_file=None,
                  timeout=DEFAULT_HTTP_TIMEOUT,
                  **kwargs):
         """Create a proxy object
 
         If ``service_url`` is not specified, the username and password are read
-        out of the file ``btc_conf_file``. If ``btc_conf_file`` is not
+        out of the file ``current_conf_file``. If ``current_conf_file`` is not
         specified, ``~/.evrmore/evrmore.conf`` or equivalent is used by
         default.  The default port is set according to the chain parameters in
         use: mainnet, testnet, or regtest.
@@ -389,7 +388,7 @@ class Proxy(BaseProxy):
 
         super(Proxy, self).__init__(service_url=service_url,
                                     service_port=service_port,
-                                    btc_conf_file=btc_conf_file,
+                                    current_conf_file=current_conf_file,
                                     timeout=timeout,
                                     **kwargs)
 
@@ -520,9 +519,8 @@ class Proxy(BaseProxy):
             raise TypeError('%s.getblock(): block_hash must be bytes; got %r instance' %
                             (self.__class__.__name__, block_hash.__class__))
         try:
-            # With this change ( https://github.com/evrmore/evrmore/commit/96c850c20913b191cff9f66fedbb68812b1a41ea#diff-a0c8f511d90e83aa9b5857e819ced344 ),
-            # evrmore core's rpc takes 0/1/2 instead of true/false as the 2nd argument which specifies verbosity, since v0.15.0.
-            # The change above is backward-compatible so far; the old "false" is taken as the new "0".
+            # Evrmore core's rpc takes 0/1/2 instead of true/false as the 2nd argument which specifies verbosity.
+            # "false" is taken as "0".
             r = self._call('getblock', block_hash, False)
         except InvalidAddressOrKeyError as ex:
             raise IndexError('%s.getblock(): %s (%d)' %
@@ -837,7 +835,7 @@ class EvrmoreRawProxy(RawProxy):
 
         super(EvrmoreRawProxy, self).__init__(service_url=service_url,
                                             service_port=service_port,
-                                            btc_conf_file=evr_conf_file,
+                                            current_conf_file=evr_conf_file,
                                             timeout=timeout)
 
 
@@ -856,7 +854,7 @@ class EvrmoreProxy(Proxy):
 
         super(EvrmoreProxy, self).__init__(service_url=service_url,
                                          service_port=service_port,
-                                         btc_conf_file=evr_conf_file,
+                                         current_conf_file=evr_conf_file,
                                          timeout=timeout)
 
     """ Evrmore asset support """

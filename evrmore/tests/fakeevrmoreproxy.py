@@ -31,7 +31,7 @@ from evrmore.core import (
     # convert bytes to little-endian hex string (see lx)
     b2lx,
 
-    # number of satoshis per evrmore
+    # number of satoshis per EVR
     COIN,
 
     # a type for a transaction that isn't finished building
@@ -88,9 +88,9 @@ def make_txout(amount=None, address=None, counter=None):
         address = make_address_from_passphrase(bytes(passphrase, "utf-8"))
 
     if not amount:
-        # 21 million BTC * 100 million satoshi per BTC
-        maxsatoshis = (21 * 1000 * 1000) * (100 * 1000 * 1000)
-        # between 0 satoshi and 21 million BTC
+        # 21 billion EVR * 100 million satoshi per EVR
+        maxsatoshis = (21 * 1000 * 1000 * 1000) * (100 * 1000 * 1000)
+        # between 0 satoshi and 21 billion EVR
         amount = random.randrange(0, maxsatoshis)
 
     txout = CMutableTxOut(amount, CEvrmoreAddress(address).to_scriptPubKey())

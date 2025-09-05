@@ -35,8 +35,6 @@ start = args.startblock
 if args.testnet:
     evrmore.SelectParams("testnet")
 else:
-    if args.startblock == 0:
-        start = evrmore.core.coreparams.nAssetActivationHeight
     evrmore.SelectParams("mainnet")
 
 r = EvrmoreProxy()  # evrmore daemon must be running locally with rpc server enabled

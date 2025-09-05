@@ -25,7 +25,7 @@ from .utils import format_hash
 
 
 # Constant separating blocks in the .blk files
-EVRMORE_CONSTANT = b"\x45\x56\x52\x4d"  # EVRM
+EVRMORE_CONSTANT = b"\x45\x56\x52\x4d"  # spells EVRM
 
 
 def get_files(path):

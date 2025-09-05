@@ -29,9 +29,9 @@ else:
 
 # Core definitions
 COIN = 100000000
-MAX_BLOCK_SIZE = 1000000*2
-MAX_BLOCK_WEIGHT = 4000000
-MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE/50
+MAX_BLOCK_SIZE = 2000000
+MAX_BLOCK_WEIGHT = 8000000
+MAX_BLOCK_SIGOPS = 80000
 WITNESS_COINBASE_SCRIPTPUBKEY_MAGIC = _bytes(
     [OP_RETURN, 0x24, 0xaa, 0x21, 0xa9, 0xed])
 
@@ -67,7 +67,7 @@ def b2x(b):
 def _py2_lx(h):
     """Convert a little-endian hex string to bytes
 
-    Lets you write uint256's and uint160's the way the Satoshi codebase shows
+    Lets you write uint256's and uint160's the way the Evrmore core codebase shows
     them.
     """
     return binascii.unhexlify(h)[::-1]
@@ -76,7 +76,7 @@ def _py2_lx(h):
 def lx(h):
     """Convert a little-endian hex string to bytes
 
-    Lets you write uint256's and uint160's the way the Satoshi codebase shows
+    Lets you write uint256's and uint160's the way the Evrmore core codebase shows
     them.
     """
     return binascii.unhexlify(h.encode('utf8'))[::-1]
@@ -85,7 +85,7 @@ def lx(h):
 def _py2_b2lx(b):
     """Convert bytes to a little-endian hex string
 
-    Lets you show uint256's and uint160's the way the Satoshi codebase shows
+    Lets you show uint256's and uint160's the way the Evrmore core codebase shows
     them.
     """
     return binascii.hexlify(b[::-1])
@@ -94,7 +94,7 @@ def _py2_b2lx(b):
 def b2lx(b):
     """Convert bytes to a little-endian hex string
 
-    Lets you show uint256's and uint160's the way the Satoshi codebase shows
+    Lets you show uint256's and uint160's the way the Evrmore core codebase shows
     them.
     """
     return binascii.hexlify(b[::-1]).decode('utf8')
@@ -618,13 +618,7 @@ class CBlockHeader(ImmutableSerializable):
              self.nTime, self.nBits, self.nNonce)
 
     def GetHash(self):
-        global coreparams
-        if self.nTime >= coreparams.nKAWPOWActivationTime:
-            return KawpowHash(self.serialize())
-        elif self.nTime >= coreparams.nX16RV2ActivationTime:
-            return X16RV2Hash(self.serialize())
-        else:
-            return X16RHash(self.serialize())
+        return KawpowHash(self.serialize())
 
 
 class NoWitnessData(Exception):
@@ -803,38 +797,38 @@ class CBlock(CBlockHeader):
 class CoreChainParams(object):
     """Define consensus-critical parameters of a given instance of the Evrmore system"""
     MAX_MONEY = None
-    GENESIS_BLOCK = None
+    GENESIS_BLOCK = None    # We are not going to use this because for Evrmore mainnet, testnet, and regtest, the genesis blocks are 3.4 MBytes in size
+    GENESIS_HASH = None
     PROOF_OF_WORK_LIMIT = None
     SUBSIDY_HALVING_INTERVAL = None
     NAME = None
 
 
 class CoreMainParams(CoreChainParams):
-    MAX_MONEY = 21000000000 * 1000 * COIN
     NAME = 'mainnet'
-    # 0000007b11d0481b2420a7c656ef76775d54ab5b29ee7ea250bc768535693b05 ???
-    GENESIS_BLOCK = CBlock.deserialize(x('04000000000000000000000000000000000000000000000000000000000000000000000016355fae8b6a26f2fa708d39997654c44b501f308d802325359a7367a800ff28c60e4d5affff001ee0d47d010101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff570004ffff001d01044c4d5468652054696d65732030332f4a616e2f3230313820426974636f696e206973206e616d65206f66207468652067616d6520666f72206e65772067656e65726174696f6e206f66206669726d73ffffffff010088526a74000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
-    SUBSIDY_HALVING_INTERVAL = 210000000 * 10
-    PROOF_OF_WORK_LIMIT = 0x00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    nDGWActivationBlock = 338778
-    nAssetActivationHeight = 435456
-    nX16RV2ActivationTime = 1569945600
-    nKAWPOWActivationTime = 1588788000
+    MAX_MONEY = 21000000000 * COIN    
+    #GENESIS_BLOCK = CBlock.deserialize(x('04000000000000000000000000000000000000000000000000000000000000000000000016355fae8b6a26f2fa708d39997654c44b501f308d802325359a7367a800ff28c60e4d5affff001ee0d47d010101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff570004ffff001d01044c4d5468652054696d65732030332f4a616e2f3230313820426974636f696e206973206e616d65206f66207468652067616d6520666f72206e65772067656e65726174696f6e206f66206669726d73ffffffff010088526a74000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
+    GENESIS_HASH = lx('0000007b11d0481b2420a7c656ef76775d54ab5b29ee7ea250bc768535693b05')
+    PROOF_OF_WORK_LIMIT = 0x000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff    # 0x1E00FFFF target
+    SUBSIDY_HALVING_INTERVAL = 1648776      # ~ 3.1 years at 1 min block time
 
 
 class CoreTestNetParams(CoreMainParams):
     NAME = 'testnet'
-    GENESIS_BLOCK = CBlock.deserialize(x('02000000000000000000000000000000000000000000000000000000000000000000000016355fae8b6a26f2fa708d39997654c44b501f308d802325359a7367a800ff2820e0a35bffff001e8847ee000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff570004ffff001d01044c4d5468652054696d65732030332f4a616e2f3230313820426974636f696e206973206e616d65206f66207468652067616d6520666f72206e65772067656e65726174696f6e206f66206669726d73ffffffff010088526a74000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
-    nX16RV2ActivationTime = 1569931200
-    nKAWPOWActivationTime = 1585159200
+    MAX_MONEY = 21000000000 * COIN    
+    #GENESIS_BLOCK = CBlock.deserialize(x('02000000000000000000000000000000000000000000000000000000000000000000000016355fae8b6a26f2fa708d39997654c44b501f308d802325359a7367a800ff2820e0a35bffff001e8847ee000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff570004ffff001d01044c4d5468652054696d65732030332f4a616e2f3230313820426974636f696e206973206e616d65206f66207468652067616d6520666f72206e65772067656e65726174696f6e206f66206669726d73ffffffff010088526a74000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
+    GENESIS_HASH = lx('00000044bc03f8460e64bc07b080f4929b1cb96fda46b8bd806e57bfb9db82f4')
+    PROOF_OF_WORK_LIMIT = 0x000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff    # 0x1E00FFFF target
+    SUBSIDY_HALVING_INTERVAL = 1648776      # ~ 3.1 years at 1 min block time
 
 
 class CoreRegTestParams(CoreTestNetParams):
     NAME = 'regtest'
-    GENESIS_BLOCK = CBlock.deserialize(x('04000000000000000000000000000000000000000000000000000000000000000000000016355fae8b6a26f2fa708d39997654c44b501f308d802325359a7367a800ff28a621d95affff7f20010000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff570004ffff001d01044c4d5468652054696d65732030332f4a616e2f3230313820426974636f696e206973206e616d65206f66207468652067616d6520666f72206e65772067656e65726174696f6e206f66206669726d73ffffffff010088526a74000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
+    MAX_MONEY = 21000000000 * COIN    
+    #GENESIS_BLOCK = CBlock.deserialize(x('04000000000000000000000000000000000000000000000000000000000000000000000016355fae8b6a26f2fa708d39997654c44b501f308d802325359a7367a800ff28a621d95affff7f20010000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff570004ffff001d01044c4d5468652054696d65732030332f4a616e2f3230313820426974636f696e206973206e616d65206f66207468652067616d6520666f72206e65772067656e65726174696f6e206f66206669726d73ffffffff010088526a74000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000'))
+    GENESIS_HASH = lx('5177b521d358ee45b83abbe2597a01511846c1bb3c08c14dc762a4649a7d2fc9')
+    PROOF_OF_WORK_LIMIT = 2**256-1 >> 1     # 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff    0x207fffff target
     SUBSIDY_HALVING_INTERVAL = 150
-    PROOF_OF_WORK_LIMIT = 2**256-1 >> 1
-    nX16RV2ActivationTime = 1566571889
 
 
 """Master global setting for what core chain params we're using"""
