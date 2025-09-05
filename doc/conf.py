@@ -15,9 +15,9 @@ from version import __version__
 import os
 import sys
 import sphinx
-PROJECT = 'python-evrmoreb'
+PROJECT = 'python-evrmorelib'
 DESCRIPTION = 'The Swiss Army Knife of the Evrmore protocol.'
-AUTHORS = 'The python-evrmoreb developers'
+AUTHORS = 'The python-evrmorelib developers'
 
 
 # If extensions (or modules to document with autodoc) are in another directory,

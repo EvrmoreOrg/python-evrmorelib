@@ -1,3 +1,5 @@
+# Copyright (C) 2022-2025 The python-evrmorelib developers
+#
 import evrmore
 
 

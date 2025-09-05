@@ -1,4 +1,5 @@
-# Copyright (C) 2018-2020 The python-evrmorelib developers
+# Copyright (C) 2020 The python-ravencoinlib developers
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 #
 # This file is part of python-evrmorelib.
 #
@@ -47,7 +48,7 @@ class Test_AssetNames(unittest.TestCase):
             CUniqueAsset("INVALID^", parent=main_asset)
 
         with self.assertRaises(InvalidAssetName):
-            CMainAsset("RAVEN")
+            CMainAsset("EVRMORE")
 
     def test_validnames(self):
         main_asset = CMainAsset("VALID.NAME")

@@ -1,3 +1,4 @@
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 """
 :author: Bryan Bishop <kanzure@gmail.com>
 """

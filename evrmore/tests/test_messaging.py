@@ -1,4 +1,5 @@
 # Copyright (C) 2020 The python-evrmorelib developers
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 #
 # This file is part of python-evrmorelib.
 #

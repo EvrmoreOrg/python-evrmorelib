@@ -1,5 +1,6 @@
 # Copyright (C) 2013-2015 The python-bitcoinlib developers
-# Copyright (C) 2018-2020 The python-evrmorelib developers
+# Copyright (C) 2020 The python-ravencoinlib developers
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 #
 # This file is part of python-evrmorelib.
 #
@@ -68,7 +69,7 @@ def signMessage(key, message):
 class EvrmoreMessage(ImmutableSerializable):
     __slots__ = ['magic', 'message']
 
-    # messagePrefix: '\x16Raven Signed Message:\n', -> messagePrefix: '\x18Evrmore Signed Message:\n',
+    # messagePrefix: '\x16Evrmore Signed Message:\n', -> messagePrefix: '\x18Evrmore Signed Message:\n',
     def __init__(self, message="", magic="Evrmore Signed Message:\n"):
         object.__setattr__(self, 'message', message.encode("utf-8"))
         object.__setattr__(self, 'magic', magic.encode("utf-8"))

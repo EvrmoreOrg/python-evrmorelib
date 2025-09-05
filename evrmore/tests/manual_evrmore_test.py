@@ -1,3 +1,5 @@
+# Copyright (C) 2022-2025 The python-evrmorelib developers
+#
 # using entropy to generate a private key and address
 # >>> import os
 # >>> import mnemonic

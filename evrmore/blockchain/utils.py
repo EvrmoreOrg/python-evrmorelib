@@ -1,5 +1,6 @@
 # Copyright (C) 2015-2016 The bitcoin-blockchain-parser developers
-# Copyright (C) 2020 The evrmore-blockchain-parser developers
+# Copyright (C) 2020 The ravencoin-blockchain-parser developers
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 #
 # This file is part of evrmore-blockchain-parser.
 #

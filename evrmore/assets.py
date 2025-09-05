@@ -1,4 +1,5 @@
-# Copyright (C) 2018-2020 The python-evrmorelib developers
+# Copyright (C) 2020 The python-ravencoinlib developers
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 #
 # This file is part of python-evrmorelib.
 #
@@ -33,7 +34,7 @@ DOUBLE_PUNCTUATION = re.compile(r"^.*[._]{2,}.*$")
 LEADING_PUNCTUATION = re.compile(r"^[._].*$")
 TRAILING_PUNCTUATION = re.compile(r"^.*[._]$")
 
-RAVEN_NAMES = re.compile("^EVR$|^RAVEN$|^EVRMORE$")
+EVRMORE_NAMES = re.compile("^EVR$|^EVER$|^EVRMORE$|^EVERMORE$|^EVRMORECOIN$|^EVERMORECOIN$|^EVRS$|^EVERS$|^EVRMORES$|^EVERMORES$|^EVRMORECOINS$|^EVERMORECOINS$|^#EVR$|^#EVER$|^#EVRMORE$|^#EVERMORE$|^#EVRMORECOIN$|^#EVERMORECOIN$|^#EVRS$|^#EVERS$|^#EVRMORES$|^#EVERMORES$|^#EVRMORECOINS$|^#EVERMORECOINS$|^RVN$|^RAVEN$|^RAVENCOIN$|^RVNS$|^RAVENS$|^RAVENCOINS$|^#RVN$|^#RAVEN$|^#RAVENCOIN$|^#RVNS$|^#RAVENS$|^#RAVENCOINS$")
 
 
 class InvalidAssetName(Exception):
@@ -101,8 +102,8 @@ class CAsset(object):
     def name(self, namestr):
         # check for invalid asset name
 
-        if RAVEN_NAMES.match(namestr):
-            raise InvalidAssetName("not allowed (EVR/RAVEN/EVRMORE")
+        if EVRMORE_NAMES.match(namestr):
+            raise InvalidAssetName("not allowed- Evrmore or Ravencoin reserved name")
         if DOUBLE_PUNCTUATION.match(namestr):
             raise InvalidAssetName("double punctuation")
         if LEADING_PUNCTUATION.match(namestr):
@@ -273,7 +274,7 @@ class CAssetName(object):
 
 
 # Asset metadata representation
-# https://github.com/RavenProject/Evrmore/blob/master/assets/asset_metadata_spec.md
+# https://github.com/RavenProject/Ravencoin/blob/master/assets/asset_metadata_spec.md
 
 class Asset_Metadata(object):
     def __init__(self, contract_url="", contract_hash="", contract_signature="",

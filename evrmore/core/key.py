@@ -1,12 +1,13 @@
 # Copyright (C) 2011 Sam Rushing
 # Copyright (C) 2012-2015 The python-bitcoinlib developers
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 #
 # This file is part of python-evrmorelib.
 #
 # It is subject to the license terms in the LICENSE file found in the top-level
 # directory of this distribution.
 #
-# No part of python-evrmoreb, including this file, may be copied, modified,
+# No part of python-evrmorelib, including this file, may be copied, modified,
 # propagated, or distributed except according to the terms contained in the
 # LICENSE file.
 

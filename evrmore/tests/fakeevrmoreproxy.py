@@ -1,3 +1,4 @@
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 """
 `FakeEvrmoreProxy` allows for unit testing of code that normally uses evrmore
 RPC without requiring a running evrmore node.

@@ -1,3 +1,5 @@
+# Copyright (C) 2022-2025 The python-evrmorelib developers
+#
 import unittest
 from evrmore.core.key import CPubKey, CECKey
 import os

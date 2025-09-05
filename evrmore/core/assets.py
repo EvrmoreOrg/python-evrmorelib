@@ -1,11 +1,12 @@
-# Copyright (C) 2020 The python-evrmorelib developers
+# Copyright (C) 2020 The python-ravencoinlib developers
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 #
-# This file is part of python-evrmoreb.
+# This file is part of python-evrmorelib.
 #
 # It is subject to the license terms in the LICENSE file found in the top-level
 # directory of this distribution.
 #
-# No part of python-evrmoreb, including this file, may be copied, modified,
+# No part of python-evrmorelib, including this file, may be copied, modified,
 # propagated, or distributed except according to the terms contained in the
 # LICENSE file.
 
@@ -58,7 +59,7 @@ def isnullassettype(data):
     return (bool(result), int(result_t))
 
 
-class RvnAssetData(object):
+class EvrAssetData(object):
     # representation of op_evr_asset data structure
     def __init__(self, data=None):
         self._asset_type = None

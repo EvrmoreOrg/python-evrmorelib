@@ -1,6 +1,7 @@
 # Copyright (C) 2007 Jan-Klaas Kollhof
 # Copyright (C) 2011-2018 The python-bitcoinlib developers
-# Copyright (C) 2018-2020 The python-evrmorelib developers
+# Copyright (C) 2020 The python-ravencoinlib developers
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 #
 # This file is part of python-evrmorelib.
 #
@@ -65,9 +66,9 @@ def get_evr_datadir(datadir=None):
     if datadir is None:
         if platform.system() == 'Darwin':
             datadir = os.path.expanduser(
-                '~/Library/Application Support/Raven/')
+                '~/Library/Application Support/Evrmore/')
         elif platform.system() == 'Windows':
-            datadir = os.path.join(os.environ['APPDATA'], 'Raven')
+            datadir = os.path.join(os.environ['APPDATA'], 'Evrmore')
         else:
             datadir = os.path.expanduser('~/.evrmore')
 
@@ -168,10 +169,10 @@ class BaseProxy(object):
             if btc_conf_file is None:
                 if platform.system() == 'Darwin':
                     btc_conf_file = os.path.expanduser(
-                        '~/Library/Application Support/Raven/')
+                        '~/Library/Application Support/Evrmore/')
                 elif platform.system() == 'Windows':
                     btc_conf_file = os.path.join(
-                        os.environ['APPDATA'], 'Raven')
+                        os.environ['APPDATA'], 'Evrmore')
                 else:
                     btc_conf_file = os.path.expanduser('~/.evrmore')
                 btc_conf_file = os.path.join(btc_conf_file, 'evrmore.conf')
@@ -821,7 +822,7 @@ class Proxy(BaseProxy):
         return self._addnode(node, 'remove')
 
 
-class RavenRawProxy(RawProxy):
+class EvrmoreRawProxy(RawProxy):
     def __init__(self,
                  service_url=None,
                  service_port=None,
@@ -834,13 +835,13 @@ class RavenRawProxy(RawProxy):
             if evr_conf_file is None:
                 evr_conf_file = get_evr_conf(datadir)
 
-        super(RavenRawProxy, self).__init__(service_url=service_url,
+        super(EvrmoreRawProxy, self).__init__(service_url=service_url,
                                             service_port=service_port,
                                             btc_conf_file=evr_conf_file,
                                             timeout=timeout)
 
 
-class RavenProxy(Proxy):
+class EvrmoreProxy(Proxy):
     def __init__(self,
                  service_url=None,
                  service_port=None,
@@ -853,12 +854,12 @@ class RavenProxy(Proxy):
             if evr_conf_file is None:
                 evr_conf_file = get_evr_conf(datadir)
 
-        super(RavenProxy, self).__init__(service_url=service_url,
+        super(EvrmoreProxy, self).__init__(service_url=service_url,
                                          service_port=service_port,
                                          btc_conf_file=evr_conf_file,
                                          timeout=timeout)
 
-    """ Raven asset support """
+    """ Evrmore asset support """
 
     def issue(self, asset_name, qty=1, to_address="", change_address="", units=0, reissuable=True, has_ipfs=False,
               ipfs_hash=""):
@@ -1087,7 +1088,7 @@ class RavenProxy(Proxy):
         r = self._call('viewmytaggedaddresses')
         return r
 
-    """ Raven Rewards """
+    """ Evrmore Rewards """
 
     def getsnapshot(self, asset_name, block_height):
         r = self._call('getsnapshot', str(asset_name), int(block_height))
@@ -1129,7 +1130,7 @@ class RavenProxy(Proxy):
         r = self._call('requestsnapshot', str(asset_name), int(block_height))
         return r
 
-    """ Raven Messaging """
+    """ Evrmore Messaging """
 
     def viewallmessages(self):
         r = self._call('viewallmessages')
@@ -1171,6 +1172,6 @@ __all__ = (
     'InWarmupError',
     'RawProxy',
     'Proxy',
-    'RavenRawProxy',
-    'RavenProxy',
+    'EvrmoreRawProxy',
+    'EvrmoreProxy',
 )

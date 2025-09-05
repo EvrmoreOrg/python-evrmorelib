@@ -1,3 +1,5 @@
+# Copyright (C) 2022-2025 The python-evrmorelib developers
+#
 from evrmore.core import CMutableTransaction, CTransaction
 from evrmore.core.script import OP_0, SIGHASH_ALL, SIGVERSION_BASE, CScript, SignatureHash
 

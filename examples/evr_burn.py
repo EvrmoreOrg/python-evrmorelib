@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # Based on burn-btc By James C. Stroud
+# Copyright (C) 2022-2025 The python-evrmorelib developers
+
 
 import sys
 import binascii

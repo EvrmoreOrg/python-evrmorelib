@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+#
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 """
 Example of Payment Channel with OP_CHECKSEQUENCEVERIFY in Evrmore
 

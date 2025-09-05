@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# Copyright (C) 2020 The python-evrmorelib developers
+# Copyright (C) 2020 The python-ravencoinlib developers
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 #
 # This file is part of python-evrmorelib.
 #
@@ -14,9 +15,9 @@ import sys
 import argparse
 import evrmore
 import evrmore.core
-from evrmore.rpc import RavenProxy
+from evrmore.rpc import EvrmoreProxy
 from evrmore.core import COIN
-from evrmore.core.assets import RvnAssetData
+from evrmore.core.assets import EvrAssetData
 from evrmore.core.script import OP_EVR_ASSET, CScriptOp
 from evrmore.assets import CAssetName
 
@@ -38,7 +39,7 @@ else:
         start = evrmore.core.coreparams.nAssetActivationHeight
     evrmore.SelectParams("mainnet")
 
-r = RavenProxy()  # evrmore daemon must be running locally with rpc server enabled
+r = EvrmoreProxy()  # evrmore daemon must be running locally with rpc server enabled
 
 try:
     end = r.getblockcount()
@@ -67,7 +68,7 @@ for c in range(start, end):
                     for d in data:
                         try:
                             # parse evr asset data as python object
-                            a = RvnAssetData(d)
+                            a = EvrAssetData(d)
                             display = True
                             if args.match != "" and not args.match in a.asset_name:
                                 display = False

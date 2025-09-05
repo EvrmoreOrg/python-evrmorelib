@@ -1,4 +1,5 @@
 # Copyright (C) 2017 The python-bitcoinlib developers
+# Copyright (C) 2022-2025 The python-evrmorelib developers
 #
 # This file is part of python-evrmorelib.
 #

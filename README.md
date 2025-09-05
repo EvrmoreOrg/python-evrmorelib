@@ -3,9 +3,7 @@
 Evrmore fork of python-bitcoinlib intended to provide access to Evrmore data 
 structures and protocol. WIP - Test before use
 
-The RPC interface, evrmore.rpc, is designed to work with Evrmore Core v3.3.0+.
-
-"The only Python library for Evrmore I've ever used" - Warren Buffett
+The RPC interface, evrmore.rpc, is designed to work with Evrmore Core v1.0.5.
 
 ## Requirements
 
@@ -15,7 +13,7 @@ The RPC interface, evrmore.rpc, is designed to work with Evrmore Core v3.3.0+.
 
     Python modules:
         x16r-hash, x16rv2-hash and kawpow
-        plyvel (requires libleveldb - for parsing Raven core .dat files)
+        plyvel (requires libleveldb - for parsing Evrmore core .dat files)
 
 ## Structure
 
