@@ -20,14 +20,16 @@ To install and use the newer version, you could do something like the
   following (assuming Linux, Python3, and using virtualenv to keep your 
   system clean):
 
-  sudo apt install virtualenv
-  sudo apt install libssl-dev
-  python3 -m virtualenv myenv
-  source ./myenv/bin/activate
-  python3 -m pip install wheel setuptools
-  python3 -m pip install plyvel
-  python3 -m pip install kawpow
-  python3 -m pip install git+https://github.com/EvrmoreOrg/python-evrmorelib
+```
+sudo apt install virtualenv
+sudo apt install libssl-dev
+python3 -m virtualenv myenv
+source ./myenv/bin/activate
+python3 -m pip install wheel setuptools
+python3 -m pip install plyvel
+python3 -m pip install kawpow
+python3 -m pip install git+https://github.com/EvrmoreOrg/python-evrmorelib
+```
 
 When you are done, you can just run "deactivate" and throw away the "myenv"
   directory to return your system to its previous state.
